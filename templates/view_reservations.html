@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <h1>Upcoming Reservations</h1>
+    <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
+    {% for reservation in upcoming_reservations %}
+        <div class="row" style="background-color: lavenderblush">
+            <div class="col-3">
+                <h5>{{ reservation.room.assoc_hotel.name }}</h5><br>
+            </div>
+            <div class="col-3">
+                {{ reservation.room }}<br>
+            </div>
+            <div class="col-3">
+                {{ reservation.check_in }}<br>
+                {{ reservation.check_out }}<br>
+            </div>
+            <div class="col-3 pt-2">
+
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-dark" style="background-color: lavenderblush; color: black"
+                        data-toggle="modal" data-target="#deleteModal{{ reservation.id }}">
+                    Delete Reservation
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal{{ reservation.id }}" tabindex="-1" role="dialog"
+                     aria-labelledby="deleteLabel{{ reservation.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel{{ reservation.id }}">Delete
+                                    Reservation</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form method="post" action="{% url 'delete_reservation' reservation.id %}"
+                                  id="review_form{{ reservation.id }}">
+                                <div class="modal-body">
+                                    {% csrf_token %}
+                                    You are about to delete the reservation on {{ reservation.check_in }}
+                                    at {{ reservation.room.assoc_hotel.name }}? <br>
+                                    <br>Are you sure?
+                                </div>
+                                <button id="submit_review" class="btn btn-primary" style="width: 500px">Yes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+
+    {% endfor %}
+
+
+    <h1>Previous Reservations</h1>
+    <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
+    {% for reservation in previous_reservations %}
+        <div class="row" style="background-color: lightyellow">
+            <div class="col-3">
+                <h5>{{ reservation.room.assoc_hotel.name }}</h5><br>
+            </div>
+            <div class="col-3">
+                {{ reservation.room }}<br>
+            </div>
+            <div class="col-3">
+                {{ reservation.check_in }}<br>
+                {{ reservation.check_out }}<br>
+            </div>
+            <div class="col-3 pt-2">
+
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-dark" style="background-color: lightyellow; color: black"
+                        data-toggle="modal" data-target="#exampleModal{{ reservation.id }}">
+                    Add Review
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal{{ reservation.id }}" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalLabel{{ reservation.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel{{ reservation.id }}">Add Review</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form method="post" id="review_form{{ reservation.id }}" autocomplete="off">
+                                <div class="modal-body">
+                                    {% csrf_token %}
+                                    {{ form|crispy }}
+                                </div>
+                                <button id="submit_review" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <script>
+            $(document).ready(function () {
+                    $("#submit_review{{ reservation.id }}").submit(function (e) {
+                            e.preventDefault();
+                            var url = "/accomodation/delete_reservation/{{ reservation.room.assoc_hotel.id }}"
+                            $.ajax({
+                                    type: 'POST',
+                                    url: url,
+                                    success: function (response) {
+                                        console.log(response)
+                                    }
+                                }
+                            )
+                            $('#deleteModal{{ reservation.id }}').modal('hide');
+                            return false;
+                        }
+                    )
+                }
+            )
+        </script>
+
+
+        <script>
+            $(document).ready(function () {
+                    $("#review_form{{ reservation.id }}").submit(function (e) {
+                            e.preventDefault();
+                            var url = "/accomodation/add_r/{{ reservation.room.assoc_hotel.id }}"
+                            $.ajax({
+                                    type: 'POST',
+                                    url: url,
+                                    data: $("#review_form{{ reservation.id }}").serializeArray(),
+
+                                    success: function (response) {
+                                        console.log(response)
+                                    }
+                                }
+                            )
+                            $('#exampleModal{{ reservation.id }}').modal('hide');
+                            return false;
+                        }
+                    )
+                }
+            )
+        </script>
+
+    {% endfor %}
+
+{% endblock %}

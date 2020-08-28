@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% block content %}
+    <hr>
+    <br> <br>
+    {% for hotel in hotels %}
+        <div class="row">
+            <div class="col-2">
+                <a href="{% url 'hotel_homepage' hotel.id %}"><img src="{{ hotel.icon.url }}" class="img-fluid"
+                                                                   style="width: 100px"/></a>
+            </div>
+            <div class="col-2">
+                <a href="{% url 'hotel_homepage' hotel.id %}">
+                <h3>{{ hotel.name }}</h3></a>
+                </a>
+                <div class="pt-2 px-4 row">
+                    <a href="{{ hotel.location_url }}"><span class="ti-location-pin"></span>
+                        <h4>{{ hotel.location }} </h4></a>
+                </div>
+            </div>
+            <div class="col-3">
+                <img src="{{ hotel.image.url }}" class="img-fluid"/>
+            </div>
+
+            <div class="col-5">
+                <button type="button" class="btn btn-light"
+                        data-toggle="modal" data-target="#review_modal">
+                    Reviews
+                </button>
+                <div class="modal fade" id="review_modal" tabindex="-1" role="dialog"
+                     aria-labelledby="review_modalLabel{{ reservation.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="review_modalLabel{{ reservation.id }}">Reviews</h5>
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {% for review in reviews %}
+                                    <div class="row" style="background-color: aliceblue">
+                                        Added by {{ review.customer.username }} <br>
+                                        {{ review.review }}
+                                    </div>
+                                    <br>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-2 row" style="position: relative; left: 20px;">
+                    <div class="rating_days d-flex justify-content-between">
+                                <span class="d-flex justify-content-center align-items-center">
+                                     <i class="fa fa-star" style="color: #FF9529"></i>
+                                     <i class="fa fa-star" style="color: #FF9529"></i>
+                                     <i class="fa fa-star" style="color: #FF9529"></i>
+                                     <i class="fa fa-star" style="color: #FF9529"></i>
+                                     <i class="fa fa-star" style="color: #FF9529"></i>
+                                </span>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
+
+
+            <br>
+        </div>
+        <br>
+        {% csrf_token %}
+
+    {% endfor %}
+{% endblock %}

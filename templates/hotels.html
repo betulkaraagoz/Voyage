@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Hotels</h2>
+    <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
+    <br>
+    {% for hotel in hotels %}
+        <div class="row">
+            <div class="col-3">
+               <ol><li><img src="{{ hotel.icon.url }}" class="img-fluid" style="width: 75px"/></li></ol>
+            </div>
+            <div class="col-3">
+                <a href="/accomodation/{{ hotel.id }}/homepage"><h4>{{ hotel.name }}</h4></a>
+            </div>
+            <div class="col-3">
+
+            </div>
+        </div>
+        <hr>
+        <br>
+    {% endfor %}
+{% endblock %}

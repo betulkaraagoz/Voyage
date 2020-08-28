@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if error %}
+        {{ error }}
+        <br />
+        <br />
+    {% endif %}
+
+<h1>Add Hotel!</h1>
+    <form method="POST" action="{% url 'add_hotel' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    Name:
+    <br />
+    <input type="text" name="name" />
+    <br />
+     Location(City):
+    <br />
+    <input type="text" name="location" />
+    <br />
+     Location URL:
+    <br />
+    <input type="url" name="location_url" />
+    <br />
+     Icon:
+    <br />
+    <input type="file" name="icon" />
+     <br />
+     Image:
+    <br />
+    <input type="file" name="image" />
+         <br />
+    Number of Rooms:
+    <br />
+    <input type="number" name="rooms" />
+    <br />
+    Description:
+    <br />
+    <input type="textbox" name="description" />
+    <br />
+    <br />
+    <input class="btn btn-primary" type="submit" value="Add">
+
+    </form>
+{% endblock %}

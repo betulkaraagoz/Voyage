@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content %}
+    <hr>
+    <br> <br>
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-2">
+            <img src="{{ hotel.icon.url }}" class="img-fluid"/>
+            <br><br><br>
+
+            {% if not user.is_staff %}
+                <button type="button" class="btn btn-primary"
+                        data-toggle="modal" data-target="#reservationModal">
+                    Make Reservation
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="reservationModal" tabindex="-1" role="dialog"
+                     aria-labelledby="reservationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="reservationModalLabel">Make Reservation</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form method="post" id="reservation_form" autocomplete="off">
+                                <div class="modal-body">
+                                    {% csrf_token %}
+                                    {{ form|crispy }}
+                                </div>
+                                <br>
+                                <button id="submit_review" class="btn btn-primary" style="width:500px ">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+        <div class="col-2">
+            <h1>{{ hotel.name }}</h1></a>
+            <div class="pt-2 px-4 row">
+                <a href="{{ hotel.location_url }}"><span class="ti-location-pin"></span>
+                    <h4>{{ hotel.location }} </h4></a>
+            </div>
+        </div>
+        <div class="col-7">
+            <img src="{{ hotel.image.url }}" class="img-fluid" style="width: 500px"/>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <p>{{ hotel.description }}</p>
+        </div>
+    </div>
+
+
+    <br>
+    <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
+
+    <h4>Reviews({{ count }})</h4>
+    <div class="pt-2 row" style="position: relative; left: 20px;">
+        <div class="rating_days d-flex justify-content-between">
+                            <span class="d-flex justify-content-center align-items-center">
+                                 <i class="fa fa-star" style="color: #FF9529"></i>
+                                 <i class="fa fa-star" style="color: #FF9529"></i>
+                                 <i class="fa fa-star" style="color: #FF9529"></i>
+                                 <i class="fa fa-star" style="color: #FF9529"></i>
+                                 <i class="fa fa-star" style="color: #FF9529"></i>
+                            </span>
+        </div>
+    </div>
+    <br>
+    <div class="row" style="background-color: linen">
+        {% for review in reviews %}
+            <div class="row">
+                <div class="col-1 pt-4">
+                    <img src="{% static 'user.png' %}" style="height: 50px" alt="">
+                </div>
+                <div class="col-8">
+                    Added by <strong>{{ review.customer.username }}</strong> <br>
+                    {{ review.review }}<br>
+                    Rating: <b>{{ review.rating }}</b>/10
+                </div>
+                <div class="col-2 ">
+                    {{ review.date }}
+                </div>
+                <div class="col-1"></div>
+            </div>
+
+            <br><br>
+            <hr>
+        {% endfor %}
+    </div>
+
+    <br>
+    {% csrf_token %}
+
+    <script>
+        $(document).ready(function () {
+                $("#reservation_form").submit(function (e) {
+                        e.preventDefault();
+                        var url = "/accomodation/add_reservation/{{ hotel.id }}"
+
+                        $.ajax({
+                                type: 'POST',
+                                url: url,
+                                data: $("#reservation_form").serializeArray(),
+
+                                success: function (response) {
+                                    console.log(response)
+                                }
+                            }
+                        )
+                        $('#reservationModal{{ reservation.id }}').modal('hide');
+                        return false;
+                    }
+                )
+            }
+        )
+    </script>
+
+{% endblock %}
