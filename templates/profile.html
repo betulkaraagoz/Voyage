@@ -6,40 +6,11 @@
     <div class="row">
         <div id="profile-container">
             {% csrf_token %}
-            <img id="profileImage" src="{% static 'user.png' %}"/>
+            <img id="profileImage" src="{% static 'user.png' %}" style="height: 50px"/>
         </div>
-        <form action="#" method="post">
-            {% csrf_token %}
-            <input id="imageUpload" type="file"
-                   name="profile_photo" placeholder="Photo" required="" capture>
-        </form>
         <div class="col-2">
             <p><h4>{{ user.username }}</h4></p>
         </div>
     </div>
-
-    <script>
-        $("#profileImage").click(function (e) {
-            $("#imageUpload").click();
-        });
-
-        function fasterPreview(uploader) {
-            var url = "/accounts/add_pp/"
-            $.ajax({
-                    type: 'POST',
-                    url: url,
-
-                    success: function (response) {
-                        console.log(response)
-                    }
-                }
-            )
-
-        }
-
-        $("#imageUpload").change(function () {
-            fasterPreview(this);
-        });
-    </script>
 {% endblock %}
 
