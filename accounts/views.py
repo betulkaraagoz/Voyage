@@ -1,15 +1,17 @@
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib import auth
 from django.contrib.auth import login, authenticate
 from django.contrib.auth import login
 from django.shortcuts import redirect
 from django.views.generic import View
-from .models import UserProfilePhoto
+from accounts.forms import CustomerSignUpForm, OwnerSignUpForm
+
 
 class SignUpCustomer(View):
     def post(self, request):
-        form = UserCreationForm(request.POST)
+        form = CustomerSignUpForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
@@ -26,7 +28,7 @@ class SignUpCustomer(View):
 
 class SignUpOwner(View):
     def post(self, request):
-        form = UserCreationForm(request.POST)
+        form = OwnerSignUpForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
@@ -64,13 +66,4 @@ class Profile(View):
     def get(self, request):
         user = request.user
         return render(request, 'profile.html', {'user': user})
-
-
-class AjaxAddPP(View):
-    def post(self, request):
-        print("HERE")
-        user = request.user
-        profile_photo = UserProfilePhoto.objects.create(user=user, photo=request.POST.get('profile_photo'))
-        profile_photo.save()
-        return redirect('profile')
 

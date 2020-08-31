@@ -1,46 +1,55 @@
 {% extends 'base.html' %}
+{% load crispy_forms_filters %}
 
 {% block content %}
-
     {% if error %}
         {{ error }}
-        <br />
-        <br />
+        <br/>
+        <br/>
     {% endif %}
 
-<h1>Add Hotel!</h1>
+    <h1>Add Hotel</h1>
+    <hr>
     <form method="POST" action="{% url 'add_hotel' %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    Name:
-    <br />
-    <input type="text" name="name" />
-    <br />
-     Location(City):
-    <br />
-    <input type="text" name="location" />
-    <br />
-     Location URL:
-    <br />
-    <input type="url" name="location_url" />
-    <br />
-     Icon:
-    <br />
-    <input type="file" name="icon" />
-     <br />
-     Image:
-    <br />
-    <input type="file" name="image" />
-         <br />
-    Number of Rooms:
-    <br />
-    <input type="number" name="rooms" />
-    <br />
-    Description:
-    <br />
-    <input type="textbox" name="description" />
-    <br />
-    <br />
-    <input class="btn btn-primary" type="submit" value="Add">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-6">
+                Name:
+                <br/>
+                <input type="text" name="name"/>
+                <br/>
+                Location(City):
+                <br/>
+                <input type="text" name="location"/>
+                <br/>
+                Location URL:
+                <br/>
+                <input type="url" name="location_url"/>
+                <br/>
+                Icon:
+                <br/>
+                <input type="file" name="icon"/>
+                <br/>
+                Cover Image:
+                <br/>
+                <input type="file" name="image"/>
+                <br/>
+                Number of Rooms:
+                <br/>
+                <input type="number" name="rooms"/>
+                <br/>
+                Description:
+                <br/>
+                <input type="textbox" name="description"/>
+            </div>
 
+            <div class="col-6">
+                <br/>
+                Additional Images:<br>
+                {{ formset.as_p }}
+                <br/>
+                <input class="btn btn-primary" type="submit" value="Add">
+            </div>
+        </div>
     </form>
 {% endblock %}

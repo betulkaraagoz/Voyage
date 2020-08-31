@@ -37,14 +37,14 @@
                                 </button>
                             </div>
                             <form method="post" action="{% url 'delete_reservation' reservation.id %}"
-                                  id="review_form{{ reservation.id }}">
+                                  id="delete{{ reservation.id }}">
                                 <div class="modal-body">
                                     {% csrf_token %}
                                     You are about to delete the reservation on {{ reservation.check_in }}
                                     at {{ reservation.room.assoc_hotel.name }}? <br>
                                     <br>Are you sure?
                                 </div>
-                                <button id="submit_review" class="btn btn-primary" style="width: 500px">Yes</button>
+                                <button id="submit_delete" class="btn btn-primary" style="width: 500px">Yes</button>
                             </form>
                         </div>
                     </div>
@@ -106,17 +106,22 @@
 
         <script>
             $(document).ready(function () {
-                    $("#submit_review{{ reservation.id }}").submit(function (e) {
+                    $("#delete{{ reservation.id }}").submit(function (e) {
                             e.preventDefault();
-                            var url = "/accomodation/delete_reservation/{{ reservation.room.assoc_hotel.id }}"
+                            var url = "/accomodation/delete_reservation/{{ reservation.id }}"
+
                             $.ajax({
                                     type: 'POST',
+                                    data: {
+                                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                                    },
                                     url: url,
                                     success: function (response) {
                                         console.log(response)
                                     }
                                 }
                             )
+
                             $('#deleteModal{{ reservation.id }}').modal('hide');
                             return false;
                         }

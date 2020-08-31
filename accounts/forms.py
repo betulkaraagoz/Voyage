@@ -37,6 +37,3 @@ class OwnerSignUpForm(UserCreationForm):
         user.save()
 
         return user
-
-
-
