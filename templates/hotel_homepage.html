@@ -41,8 +41,8 @@
         <div class="col-9">
             <h1>{{ hotel.name }}</h1>
             <div class="pt-2 px-4 row">
-                <a href="{{ hotel.location_url }}"><span class="ti-location-pin"></span>
-                    <h4>{{ hotel.location }} </h4></a>
+                <A target="_blank" href="{{ hotel.location_url }}"><span class="ti-location-pin"></span>
+                    <h4>{{ hotel.location }} </h4></A>
             </div>
         </div>
     </div>
@@ -118,9 +118,9 @@
             <div class="row">
                 <div class="col-1 pt-4">
                     <img src="{% static 'user.png' %}" style="height: 50px" alt="">
+                    <strong>{{ review.customer.username }}</strong> <br>
                 </div>
                 <div class="col-8">
-                    Added by <strong>{{ review.customer.username }}</strong> <br>
                     {{ review.review }}<br>
                     Rating: <b>{{ review.rating }}</b>/10
                 </div>
@@ -139,6 +139,20 @@
     {% csrf_token %}
 
     <script>
+        $('.datepicker_1').datepicker({
+            format: 'yyyy-mm-dd',
+        });
+        $('.datepicker_2').datepicker({
+            format: 'yyyy-mm-dd',
+        });
+        $('.js-example-basic-single').select2({
+             dropdownParent: $('#reservationModal')
+        });
+
+    </script>
+
+
+    <script>
         $(document).ready(function () {
                 $("#reservation_form").submit(function (e) {
                         e.preventDefault();
@@ -151,6 +165,7 @@
 
                                 success: function (response) {
                                     console.log(response)
+                                    window.location.href = '/accomodation/reservations';
                                 }
                             }
                         )

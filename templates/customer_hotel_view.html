@@ -10,12 +10,12 @@
                 <a href="{% url 'hotel_homepage' hotel.id %}"><img src="{{ hotel.icon.url }}" class="img-fluid"
                                                                    style="width: 100px"/></a>
             </div>
-            <div class="col-2">
+            <div class="col-3">
                 <a href="{% url 'hotel_homepage' hotel.id %}">
                     <h3>{{ hotel.name }}</h3></a>
                 </a>
                 <div class="pt-2 px-4 row">
-                    <a href="{{ hotel.location_url }}"><span class="ti-location-pin"></span>
+                    <a target="_blank" href="{{ hotel.location_url }}"><span class="ti-location-pin"></span>
                         <h4>{{ hotel.location }} </h4></a>
                 </div>
             </div>

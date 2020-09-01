@@ -129,6 +129,8 @@ class AjaxMakeReservation(View):
             check_in = request.POST.get('check_in')
             check_out = request.POST.get('check_out')
             room = Room.objects.filter(assoc_hotel_id=hotel_id, name__contains=request.POST.get('room')).first()
+        else:
+            print(reservation_form.errors)
 
         guest = request.user
 

@@ -1,8 +1,14 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Avg
 from django.utils import timezone
+
+
+def next_day():
+    return timezone.now() + timezone.timedelta(days=1)
 
 
 class Hotel(models.Model):
@@ -108,7 +114,7 @@ class Room(models.Model):
 
 class Reservation(models.Model):
     check_in = models.DateField(default=timezone.now)
-    check_out = models.DateField()
+    check_out = models.DateField(default=next_day)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     guest = models.ForeignKey(User, on_delete=models.CASCADE)
 
