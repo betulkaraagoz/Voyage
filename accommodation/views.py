@@ -1,14 +1,22 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.utils.datetime_safe import datetime
 from django.views import View
-from .models import Hotel, Room, Reservation, Review, AdditionalImages
+from accommodation.models import Hotel, Room, Reservation, Review, AdditionalImages
+from accounts.models import CustomerLikes, UserPP
 from .forms import ReviewForm, ReservationForm
 from django.forms import modelformset_factory
-
+from django.db.models import Q
 
 class Home(View):
     def get(self, request):
         return render(request, 'index.html')
+
+    def post(self, request):
+        search_term = request.POST.get('search')
+        rooms = Room.objects.all()
+        search_results = Hotel.objects.filter(Q(location__icontains=search_term) | Q(name__icontains=search_term))
+        hotels = sorted(search_results, key=lambda t: t.get_avg_rating(), reverse=True)
+        return render(request, 'customer_hotel_view.html', {'hotels': hotels, 'rooms': rooms})
 
 
 class Hotels(View):
@@ -26,29 +34,21 @@ class HotelHomePage(View):
         reviews_count = reviews.count()
         hotel = Hotel.objects.get(id=hotel_id)
         images = AdditionalImages.objects.filter(hotel_id=hotel_id)
+        is_liked = CustomerLikes.objects.filter(liked_hotel_id=hotel_id, user_id=request.user.id).exists()
         return render(request, 'hotel_homepage.html',
                       {'hotel': hotel, 'rooms': rooms, 'reviews': reviews, 'count': reviews_count,
-                       'form': form, 'images': images})
+                       'form': form, 'images': images, 'liked': is_liked})
 
 
 class AddHotels(View):
     def post(self, request):
-        ImageFormSet = modelformset_factory(AdditionalImages, fields=('image',), extra=5)
-        if request.POST['name'] and request.FILES['icon'] and request.FILES['image'] and request.POST['description'] and \
-                request.POST['rooms'] and request.POST['location_url']:
-            formset = ImageFormSet(request.POST or None, request.FILES or None)
+        if request.POST['name'] and request.FILES['icon'] and request.FILES.get('image') and request.POST['description'] \
+                and request.POST['rooms'] and request.POST['location_url'] and request.FILES['files']:
 
             new_hotel = Hotel()
             new_hotel.name = request.POST['name']
             new_hotel.icon = request.FILES['icon']
             new_hotel.image = request.FILES['image']
-
-            if request.POST['location_url'].startswith('http://') or request.POST['location_url'].startswith(
-                    'https://'):
-                new_hotel.location_url = request.POST['location_url']
-            else:
-                new_hotel.location_url = 'http://' + request.POST['location_url']
-
             new_hotel.location_url = request.POST['location_url']
             new_hotel.description = request.POST['description']
             new_hotel.number_of_rooms = request.POST['rooms']
@@ -65,13 +65,9 @@ class AddHotels(View):
                 )
                 new_room.save()
 
-            if formset.is_valid():
-                for f in formset:
-                    try:
-                        photo = AdditionalImages(hotel=new_hotel, image=f.cleaned_data['image'])
-                        photo.save()
-                    except Exception as e:
-                        break
+            for picture in request.FILES.getlist('files'):
+                photo = AdditionalImages(hotel=new_hotel, image=picture)
+                photo.save()
 
             return redirect('hotels')
 
@@ -154,3 +150,29 @@ class DeleteReservation(View):
         reservation = Reservation.objects.get(id=reservation_id)
         reservation.delete()
         return redirect('reservations')
+
+
+class DeleteReview(View):
+    def post(self, request, review_id):
+        review = Review.objects.get(id=review_id)
+        review.delete()
+        return redirect('profile')
+
+
+class AjaxLike(View):
+    def post(self, request, hotel_id):
+        hotel = Hotel.objects.get(id=hotel_id)
+        like = CustomerLikes.objects.create(user=request.user, liked_hotel=hotel)
+        like.save()
+        return redirect('reservations')
+
+
+class AjaxUnlike(View):
+    def post(self, request, hotel_id):
+        hotel = Hotel.objects.get(id=hotel_id)
+        like = CustomerLikes.objects.filter(user=request.user, liked_hotel=hotel)
+        like.delete()
+        return redirect('reservations')
+
+
+

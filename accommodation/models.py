@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -125,3 +123,6 @@ class Review(models.Model):
     review = models.CharField(max_length=1000)
     rating = models.PositiveIntegerField(validators=[MaxValueValidator(10)])
     date = models.DateField(default=timezone.now())
+
+    def get_short_review(self):
+        return self.review[:100]

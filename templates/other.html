@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html>
+
+   <div class="col-4">
+                {% if profile_picture is None %}
+                    <img src="{% static 'user.png' %}" alt class="ui-w-100 rounded-circle">
+                {% endif %}
+                {% if profile_picture is not None %}
+                     <img src="{{ profile_picture }}" alt class="ui-w-100 rounded-circle">
+                {% endif %}
+                <form action="profile" method="post">
+                    <input type="file" id="photo" name="photo">
+                    <button type="submit" class="btn btn-light">Change Photo</button>
+                </form>
+            </div>

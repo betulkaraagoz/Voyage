@@ -1,23 +1,22 @@
 {% extends 'base.html' %}
 {% load crispy_forms_filters %}
-
+{% load static %}
 {% block content %}
     <hr>
     <br> <br>
     {% for hotel in hotels %}
         <div class="row">
             <div class="pt-5 col-1">
-                <a href="{% url 'hotel_homepage' hotel.id %}"><img src="{{ hotel.icon.url }}" class="img-fluid"
-                                                                   style="width: 100px"/></a>
+                <a href="{% url 'hotel_homepage' hotel.id %}"><img src="{{ hotel.icon.url }}" class="img-fluid" style="width: 100px"/></a>
             </div>
             <div class="col-3">
                 <a href="{% url 'hotel_homepage' hotel.id %}">
                     <h3>{{ hotel.name }}</h3></a>
                 </a>
-                <div class="pt-2 px-4 row">
-                    <a target="_blank" href="{{ hotel.location_url }}"><span class="ti-location-pin"></span>
-                        <h4>{{ hotel.location }} </h4></a>
-                </div>
+                <a target="_blank" href="{{ hotel.location_url }}">
+                    <img src="{% static 'pin.png' %}" style="height: 20px" class="img-fluid">
+                    {{ hotel.location }}
+                    </a>
             </div>
             <div class="col-3">
                 <img src="{{ hotel.image.url }}" class="img-fluid"/>
@@ -31,7 +30,6 @@
                                 <h4>Average user rating</h4>
                                 <h2 class="bold padding-bottom-7">{{ hotel.get_avg_rating }} <small>/ 10</small></h2>
 
-                                {# STARS#}
                                 <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
                                     <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
                                 </button>
@@ -144,14 +142,10 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-
 
             <br>
             <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
-
-
             <br>
         </div>
         <br>

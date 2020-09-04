@@ -6,7 +6,10 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth import login
 from django.shortcuts import redirect
 from django.views.generic import View
+
+from accommodation.models import Review
 from accounts.forms import CustomerSignUpForm, OwnerSignUpForm
+from accounts.models import UserPP
 
 
 class SignUpCustomer(View):
@@ -22,7 +25,7 @@ class SignUpCustomer(View):
         return render(request, 'signup_customer.html', {'form': form})
 
     def get(self, request):
-        form = UserCreationForm()
+        form = CustomerSignUpForm()
         return render(request, 'signup_customer.html', {'form': form})
 
 
@@ -30,16 +33,15 @@ class SignUpOwner(View):
     def post(self, request):
         form = OwnerSignUpForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
             login(request, user)
             return redirect('home')
         return render(request, 'signup_owner.html', {'form': form})
 
     def get(self, request):
-        form = UserCreationForm()
+        form = OwnerSignUpForm()
         return render(request, 'signup_owner.html', {'form': form})
 
 
@@ -64,6 +66,33 @@ class LogOut(View):
 
 class Profile(View):
     def get(self, request):
-        user = request.user
-        return render(request, 'profile.html', {'user': user})
+        reviews = Review.objects.filter(customer_id=request.user.id)
+        profile_picture = UserPP.objects.get(user__id=request.user.id)
+        print(profile_picture)
+        return render(request, 'profile.html', {'picture': profile_picture.profile_picture, 'reviews': reviews})
 
+    def post(self, request):
+        user = User.objects.get(id=request.user.id)
+
+        if len(request.POST.get('username')) != 0:
+            user.username = request.POST.get('username')
+
+        if request.user.is_staff and len(request.POST.get('email')) != 0:
+            user.email = request.POST.get('email')
+
+        print(user.password)
+
+        if user.check_password(request.POST.get('current_pass')):
+            if request.POST.get('confirm_pass') == request.POST.get('new_pass') and len(request.POST.get('confirm_pass')) != 0 and len(request.POST.get('new_pass')) != 0:
+                user.set_password(request.POST.get('new_pass'))
+
+        user.save()
+
+        picture = request.FILES.get('file')
+        profile_picture = UserPP.objects.get(user__id=request.user.id)
+        profile_picture.delete()
+
+        new_pp = UserPP.objects.create(profile_picture=picture, user=request.user)
+        new_pp.save()
+
+        return redirect('profile')
