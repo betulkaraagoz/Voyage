@@ -7,6 +7,7 @@ from .forms import ReviewForm, ReservationForm
 from django.forms import modelformset_factory
 from django.db.models import Q
 
+
 class Home(View):
     def get(self, request):
         return render(request, 'index.html')
@@ -23,7 +24,11 @@ class Hotels(View):
     def get(self, request):
         hotels = Hotel.objects.filter(owner=request.user.id)
 
-        return render(request, 'hotels.html', {'hotels': hotels})
+        hotel_up_reservations = {}
+        for hotel in hotels:
+            hotel_up_reservations[hotel] = Reservation.objects.filter(room__assoc_hotel=hotel, check_in__gte=datetime.now().date())
+
+        return render(request, 'hotels.html', {'dict': hotel_up_reservations})
 
 
 class HotelHomePage(View):
@@ -35,9 +40,14 @@ class HotelHomePage(View):
         hotel = Hotel.objects.get(id=hotel_id)
         images = AdditionalImages.objects.filter(hotel_id=hotel_id)
         is_liked = CustomerLikes.objects.filter(liked_hotel_id=hotel_id, user_id=request.user.id).exists()
+
+        pps = {}
+        for review in reviews:
+            pps[review] = UserPP.objects.get(user_id=review.customer.id)
+
         return render(request, 'hotel_homepage.html',
                       {'hotel': hotel, 'rooms': rooms, 'reviews': reviews, 'count': reviews_count,
-                       'form': form, 'images': images, 'liked': is_liked})
+                       'form': form, 'images': images, 'liked': is_liked, 'dict': pps})
 
 
 class AddHotels(View):
@@ -85,6 +95,7 @@ class HotelViewForCustomer(View):
         unsorted_hotels = Hotel.objects.all()
         rooms = Room.objects.all()
         hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
+
         return render(request, 'customer_hotel_view.html', {'hotels': hotels, 'rooms': rooms})
 
     def post(self, request):

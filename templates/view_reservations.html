@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_filters %}
-
+{% load static %}
 {% block content %}
     <h1>Upcoming Reservations</h1>
     <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
@@ -21,6 +21,7 @@
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-dark" style="background-color: lavenderblush; color: black"
                         data-toggle="modal" data-target="#deleteModal{{ reservation.id }}">
+                    <img src="{% static 'delete-512.png' %}" width="20px">
                     Delete Reservation
                 </button>
 
@@ -44,7 +45,7 @@
                                     at {{ reservation.room.assoc_hotel.name }}? <br>
                                     <br>Are you sure?
                                 </div>
-                                <button id="submit_delete" class="btn btn-primary" style="width: 500px">Yes</button>
+                                <button id="submit_delete" class="btn btn-primary" style="width: 100px">Yes</button>
                             </form>
                         </div>
                     </div>
@@ -75,6 +76,7 @@
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-dark" style="background-color: lightyellow; color: black"
                         data-toggle="modal" data-target="#exampleModal{{ reservation.id }}">
+                     <img src="{% static 'pen.webp' %}" width="20px">
                     Add Review
                 </button>
 
@@ -93,6 +95,7 @@
                                 <div class="modal-body">
                                     {% csrf_token %}
                                     {{ form|crispy }}
+
                                 </div>
                                 <button id="submit_review" class="btn btn-primary">Submit</button>
                             </form>

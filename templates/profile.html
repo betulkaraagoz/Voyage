@@ -31,6 +31,8 @@
                     <div class="col mb-3">
                         <div class="card">
                             <div class="card-body">
+                                 <form class="form" novalidate="" method="post" action="{% url 'profile' %}" enctype="multipart/form-data">
+                                 {% csrf_token %}
                                 <div class="e-profile">
                                     <div class="row">
                                         <div class="col-12 col-sm-auto mb-3">
@@ -53,12 +55,10 @@
                                                     <p class="mb-0">@{{ request.user.username }}</p>
                                                 {% endif %}
                                                 <div class="mt-2">
-                                                     <form method="post" action="{% url 'profile' %}" enctype='multipart/form-data'>
                                                     <label for="file-upload" class="custom-file-upload">
                                                         <i class="fa fa-fw fa-camera"></i> Change Photo
                                                     </label>
                                                     <input id="file-upload" type="file" name="file"/>
-                                                     </form>
                                                 </div>
                                             </div>
                                             <div class="text-center text-sm-right">
@@ -72,8 +72,6 @@
                                     </ul>
                                     <div class="tab-content pt-3">
                                         <div class="tab-pane active">
-                                            <form class="form" novalidate="" method="post" action="{% url 'profile' %}">
-                                                {% csrf_token %}
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="row">
@@ -181,11 +179,10 @@
                                                                value="Save Changes">
                                                     </div>
                                                 </div>
-                                            </form>
-
                                         </div>
                                     </div>
                                 </div>
+                                </form>
                             </div>
                         </div>
                     </div>

@@ -19,79 +19,35 @@ class Hotel(models.Model):
     icon = models.ImageField(upload_to='images/')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def get_reviews_count(self):
+        return Review.objects.filter(hotel_id=self.id).count()
+
     def get_avg_rating(self):
         reviews = Review.objects.filter(hotel_id=self.id)
-
         if reviews is None:
             return 0
 
         reviews_average = list(reviews.aggregate(Avg('rating')).values())[0]
         return reviews_average
 
-    def get_rating_count_0_2(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        return reviews.filter(rating__lte=2).count()
-
-    def get_rating_count_2_4(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        return reviews.filter(rating__lte=4, rating__gt=2).count()
-
-    def get_rating_count_4_6(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        return reviews.filter(rating__lte=6, rating__gt=4).count()
-
-    def get_rating_count_6_8(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        return reviews.filter(rating__lte=8, rating__gt=6).count()
-
-    def get_rating_count_8_10(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        return reviews.filter(rating__gt=8).count()
-
-    def get_percentage_8_10(self):
+    def get_ratings(self):
         reviews = Review.objects.filter(hotel_id=self.id)
 
-        rate = reviews.filter(rating__gt=8).count()
-        if rate != 0:
-            return (Review.objects.filter(hotel_id=self.id).count() / rate) * 100
-        else:
-            return 0
+        ratings = [reviews.filter(rating__lte=2).count(), reviews.filter(rating__lte=4, rating__gt=2).count(),
+                   reviews.filter(rating__lte=6, rating__gt=4).count(), reviews.filter(rating__lte=8, rating__gt=6).count(),
+                   reviews.filter(rating__gt=8).count()]
 
-    def get_percentage_6_8(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        rate = reviews.filter(rating__lte=8, rating__gt=6).count()
+        return ratings
 
-        if rate != 0:
-            return (Review.objects.filter(hotel_id=self.id).count() / rate) * 100
-        else:
-            return 0
+    def get_percentages(self):
+        per_1 = (self.get_reviews_count() / self.get_ratings()[0])*100 if self.get_ratings()[0] != 0 else 0
+        per_2 = (self.get_reviews_count() / self.get_ratings()[1])*100 if self.get_ratings()[1] != 0 else 0
+        per_3 = (self.get_reviews_count() / self.get_ratings()[2])*100 if self.get_ratings()[2] != 0 else 0
+        per_4 = (self.get_reviews_count() / self.get_ratings()[3])*100 if self.get_ratings()[3] != 0 else 0
+        per_5 = (self.get_reviews_count() / self.get_ratings()[4])*100 if self.get_ratings()[4] != 0 else 0
 
-    def get_percentage_4_6(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        rate = reviews.filter(rating__lte=6, rating__gt=4).count()
-
-        if rate != 0:
-            return (Review.objects.filter(hotel_id=self.id).count() / rate) * 100
-        else:
-            return 0
-
-    def get_percentage_2_4(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        rate = reviews.filter(rating__lte=4, rating__gt=2).count()
-
-        if rate != 0:
-            return (Review.objects.filter(hotel_id=self.id).count() / rate) * 100
-        else:
-            return 0
-
-    def get_percentage_0_2(self):
-        reviews = Review.objects.filter(hotel_id=self.id)
-        rate = reviews.filter(rating__lte=2).count()
-
-        if rate != 0:
-            return (Review.objects.filter(hotel_id=self.id).count() / rate) * 100
-        else:
-            return 0
+        percentages = [per_1, per_2, per_3, per_4, per_5]
+        return percentages
 
 
 class AdditionalImages(models.Model):

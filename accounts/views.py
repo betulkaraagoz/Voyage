@@ -68,7 +68,7 @@ class Profile(View):
     def get(self, request):
         reviews = Review.objects.filter(customer_id=request.user.id)
         profile_picture = UserPP.objects.get(user__id=request.user.id)
-        print(profile_picture)
+
         return render(request, 'profile.html', {'picture': profile_picture.profile_picture, 'reviews': reviews})
 
     def post(self, request):
@@ -80,19 +80,19 @@ class Profile(View):
         if request.user.is_staff and len(request.POST.get('email')) != 0:
             user.email = request.POST.get('email')
 
-        print(user.password)
-
         if user.check_password(request.POST.get('current_pass')):
-            if request.POST.get('confirm_pass') == request.POST.get('new_pass') and len(request.POST.get('confirm_pass')) != 0 and len(request.POST.get('new_pass')) != 0:
+            if request.POST.get('confirm_pass') == request.POST.get('new_pass') and len(
+                    request.POST.get('confirm_pass')) != 0 and len(request.POST.get('new_pass')) != 0:
                 user.set_password(request.POST.get('new_pass'))
 
         user.save()
 
-        picture = request.FILES.get('file')
-        profile_picture = UserPP.objects.get(user__id=request.user.id)
-        profile_picture.delete()
-
-        new_pp = UserPP.objects.create(profile_picture=picture, user=request.user)
-        new_pp.save()
+        if request.FILES['file']:
+            profile_picture = UserPP.objects.get(user__id=request.user.id)
+            profile_picture.delete()
+            new_pp = UserPP()
+            new_pp.profile_picture = request.FILES['file']
+            new_pp.user = request.user
+            new_pp.save()
 
         return redirect('profile')

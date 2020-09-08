@@ -4,13 +4,31 @@
     <h2>Hotels</h2>
     <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
     <br>
-    {% for hotel in hotels %}
+    {% for key, value in dict.items %}
         <div class="row">
             <div class="col-2">
-               <ol><li><img src="{{ hotel.icon.url }}" class="img-fluid" style="width: 75px"/></li></ol>
+                <ol>
+                    <li><img src="{{ key.icon.url }}" class="img-fluid" style="width: 75px"/></li>
+                </ol>
             </div>
             <div class="col-2">
-                <a href="/accomodation/{{ hotel.id }}/homepage"><h4>{{ hotel.name }}</h4></a>
+                <a href="/accomodation/{{ key.id }}/homepage"><h4>{{ key.name }}</h4></a>
+            </div>
+            <div class="col-4">
+                <details>
+                    <summary>{{ value|length }} upcoming reservations</summary>
+                    {% for val in value %}
+                        <p>{{ val.guest.get_full_name }}</p>
+                        on {{ val.check_in }} - {{ val.check_out }} for {{ val.room }}
+                        <br>
+                    {% endfor %}
+                </details>
+            </div>
+            <div class="col-4">
+                <details>
+                    <summary>Total Income</summary>
+                        <p>not specified</p>
+                </details>
             </div>
         </div>
         <hr>
