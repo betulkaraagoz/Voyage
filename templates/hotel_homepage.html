@@ -6,12 +6,84 @@
         .pp {
             border-radius: 50%;
         }
+
+        /* Style tab links */
+        .tablink {
+            background-color: pink;
+            color: white;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: 17px;
+            width: 40%;
+            height: 30px;
+        }
+
+        .tablink:hover {
+            background-color: #777;
+        }
+
+        /* Style the tab content (and add height:100% for full page content) */
+        .tabcontent {
+            color: white;
+            display: none;
+            padding: 20px;
+            height: 100%;
+        }
+
+        #Photos {
+            background-color: white;
+        }
+
     </style>
     <div class="row">
         <div class="col-1"></div>
         <div class="col-2">
-            <img src="{{ hotel.icon.url }}" class="img-fluid"/>
-            <br><br><br>
+            {% if hotel.icon %}
+                <img src="{{ hotel.icon.url }}" class="img-fluid"/>
+            {% endif %}
+        </div>
+        <div class="col-7">
+            <h1>{{ hotel.name }}</h1>
+            <a target="_blank" href="{{ hotel.location_url }}">
+                <img src="{% static 'pin.png' %}" style="height: 20px" class="img-fluid">
+                {{ hotel.location }}
+            </a>
+            <br>
+            <br>
+
+            <div class="rating_days d-flex justify-content-between">
+                    <span class="d-flex justify-content-center align-items-center">
+                        {% if hotel.number_of_stars == 1 %}
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                        {% endif %}
+                        {% if hotel.number_of_stars == 2 %}
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                        {% endif %}
+                        {% if hotel.number_of_stars == 3 %}
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                        {% endif %}
+                        {% if hotel.number_of_stars == 4 %}
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                        {% endif %}
+                        {% if hotel.number_of_stars == 5 %}
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                            <i class="fa fa-star" style="color: #FF9529"></i>
+                        {% endif %}
+                    </span>
+            </div>
+
+            <br>
             {% if not user.is_staff %}
                 <button type="button" class="btn btn-primary"
                         data-toggle="modal" data-target="#reservationModal">
@@ -43,13 +115,6 @@
             {% endif %}
 
         </div>
-        <div class="col-7">
-            <h1>{{ hotel.name }}</h1>
-            <a target="_blank" href="{{ hotel.location_url }}">
-                <img src="{% static 'pin.png' %}" style="height: 20px" class="img-fluid">
-                {{ hotel.location }}
-            </a>
-        </div>
 
         <div class="col-2">
             <form method="post" id="like_form">
@@ -63,312 +128,348 @@
                     {% endif %}
                 </div>
             </form>
+
+            <a href="tel: {{ hotel.telephone }}"> <i class="fa fa-phone"></i> </a>
+            <a href="mailto: {{ hotel.email }}"> <img src="{% static 'email.png' %}"> </a>
+            <a target="_blank" href="https://{{ hotel.hotel_website }}"> <img src="{% static 'monitor.png' %}"> </a>
+
         </div>
+    </div>
+    <br>
 
 
-        <br>
+    <br><br>
+    <button class="tablink" style="margin-left: 130px" onclick="openPage('Photos')" id="defaultOpen">Photos</button>
+    <button class="tablink" onclick="openPage('Map')">Map</button>
 
-        <div class="row">
-            <div class="container" style="margin-left: 50px">
-                <br>
-                <div id="myCarousel" class="carousel slide" data-ride="carousel">
-                    <!-- Indicators -->
-                    <ol class="carousel-indicators">
-                        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-                        <li data-target="#myCarousel" data-slide-to="1"></li>
-                        <li data-target="#myCarousel" data-slide-to="2"></li>
-                        <li data-target="#myCarousel" data-slide-to="3"></li>
-                        <li data-target="#myCarousel" data-slide-to="4"></li>
-                        <li data-target="#myCarousel" data-slide-to="5"></li>
-                    </ol>
+    <div id="Photos" class="tabcontent">
+        <div class="container">
+            <br>
+            <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                <!-- Indicators -->
+                <ol class="carousel-indicators">
+                    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                    <li data-target="#myCarousel" data-slide-to="1"></li>
+                    <li data-target="#myCarousel" data-slide-to="2"></li>
+                    <li data-target="#myCarousel" data-slide-to="3"></li>
+                    <li data-target="#myCarousel" data-slide-to="4"></li>
+                    <li data-target="#myCarousel" data-slide-to="5"></li>
+                </ol>
 
-                    <!-- Wrapper for slides -->
+                <!-- Wrapper for slides -->
 
-                    <div class="carousel-inner" role="listbox">
-                        <div class="item active">
+                <div class="carousel-inner" role="listbox">
+                    <div class="item active">
+                        {% if hotel.image %}
                             <img src="{{ hotel.image.url }}" class="img-fluid"/>
-                        </div>
-                        {% for image in images %}
-                            <div class="item">
-                                <img src="{{ image.image.url }}" width="460" height="345">
-                            </div>
-                        {% endfor %}
+                        {% endif %}
                     </div>
-
-                    <!-- Left and right controls -->
-                    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
+                    {% for image in images %}
+                        <div class="item">
+                            <img src="{{ image.image.url }}">
+                        </div>
+                    {% endfor %}
                 </div>
+
+                <!-- Left and right controls -->
+                <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
             </div>
         </div>
+    </div>
 
-        <div class="row">
-            <div class="col-1"></div>
-            <div class="col-10">
-                <p>{{ hotel.description }}</p>
-            </div>
-        </div>
-
-
+    <div id="Map" class="tabcontent">
         <br>
-        <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
+        <iframe src="{{ hotel.maps_url }}"
+                width="100%" height="500" frameborder="0" style="border:0; margin-left: 70px" allowfullscreen=""
+                aria-hidden="false"
+                tabindex="0"></iframe>
+    </div>
 
-        <div class="container align-items-center">
-            <div class="row ">
-                <div class="col-3"></div>
-                <div class="col-sm-3">
-                    <div class="rating-block">
-                        <h4>Average user rating</h4>
-                        <span class="d-inline-block rounded-circle" style="height: 75px; width: 120px; background-color: #E9486C">
-                            <h2 class="bold" style="position: relative; left: 5px;">{{ hotel.get_avg_rating }} <small style="color: black">/ 10</small></h2>
+
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <p>{{ hotel.description }}</p>
+        </div>
+    </div>
+
+
+    <br>
+    <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 100%;">
+
+    <div class="container align-items-center">
+        <div class="row ">
+            <div class="col-3"></div>
+            <div class="col-sm-3">
+                <div class="rating-block">
+                    <h4>Average user rating</h4>
+                    <span class="d-inline-block rounded-circle"
+                          style="height: 75px; width: 120px; background-color: #E9486C">
+                            <h2 class="bold" style="position: relative; left: 5px;">{{ hotel.get_avg_rating }} <small
+                                    style="color: black">/ 10</small></h2>
                         </span>
 
-                        {#                                {% for i in "x"|ljust:10 %}#}
-                        {#                                    {% if forloop.counter0 < hotel.get_avg_rating %}#}
-                        {#                                    <button type="button" class="btn btn-warning btn-sm" style="width: 10px" aria-label="Left Align">#}
-                        {#                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>#}
-                        {#                                    </button>#}
-                        {#                                    {% else %}#}
-                        {#                                    <button type="button" class="btn btn-default btn-sm"  style="width: 10px" aria-label="Left Align">#}
-                        {#                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>#}
-                        {#                                    </button>#}
-                        {#                                    {% endif %}#}
-                        {#                                {% endfor %}#}
+                    {#                                {% for i in "x"|ljust:10 %}#}
+                    {#                                    {% if forloop.counter0 < hotel.get_avg_rating %}#}
+                    {#                                    <button type="button" class="btn btn-warning btn-sm" style="width: 10px" aria-label="Left Align">#}
+                    {#                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>#}
+                    {#                                    </button>#}
+                    {#                                    {% else %}#}
+                    {#                                    <button type="button" class="btn btn-default btn-sm"  style="width: 10px" aria-label="Left Align">#}
+                    {#                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>#}
+                    {#                                    </button>#}
+                    {#                                    {% endif %}#}
+                    {#                                {% endfor %}#}
 
-                    </div>
                 </div>
-                <div class="col-sm-3">
-                    <h4>Rating breakdown</h4>
-                    <div class="pull-left">
-                        <div class="pull-left" style="width:35px; line-height:1;">
-                            <div style="height:9px; margin:5px 0;">5 <span
-                                    class="glyphicon glyphicon-star"></span>
-                            </div>
+            </div>
+            <div class="col-sm-3">
+                <h4>Rating breakdown</h4>
+                <div class="pull-left">
+                    <div class="pull-left" style="width:35px; line-height:1;">
+                        <div style="height:9px; margin:5px 0;">5 <span
+                                class="glyphicon glyphicon-star"></span>
                         </div>
-                        <div class="pull-left" style="width:180px;">
-                            <div class="progress" style="height:9px; margin:8px 0;">
-                                <div class="progress-bar progress-bar-success" role="progressbar"
-                                     aria-valuenow="5"
-                                     aria-valuemin="0" aria-valuemax="5"
+                    </div>
+                    <div class="pull-left" style="width:180px;">
+                        <div class="progress" style="height:9px; margin:8px 0;">
+                            <div class="progress-bar progress-bar-success" role="progressbar"
+                                 aria-valuenow="5"
+                                 aria-valuemin="0" aria-valuemax="5"
 
-                                     style="width: {{ hotel.get_percentages.4 }}%">
-                                    <span class="sr-only">80% Complete (danger)</span>
-                                </div>
+                                 style="width: {{ hotel.get_percentages.4 }}%">
+                                <span class="sr-only">80% Complete (danger)</span>
                             </div>
                         </div>
-                        <div class="pull-right"
-                             style="margin-left:10px;">{{ hotel.get_ratings.4 }}</div>
                     </div>
-                    <div class="pull-left">
-                        <div class="pull-left" style="width:35px; line-height:1;">
-                            <div style="height:9px; margin:5px 0;">4 <span
-                                    class="glyphicon glyphicon-star"></span>
-                            </div>
+                    <div class="pull-right"
+                         style="margin-left:10px;">{{ hotel.get_ratings.4 }}</div>
+                </div>
+                <div class="pull-left">
+                    <div class="pull-left" style="width:35px; line-height:1;">
+                        <div style="height:9px; margin:5px 0;">4 <span
+                                class="glyphicon glyphicon-star"></span>
                         </div>
-                        <div class="pull-left" style="width:180px;">
-                            <div class="progress" style="height:9px; margin:8px 0;">
-                                <div class="progress-bar progress-bar-primary" role="progressbar"
-                                     aria-valuenow="4"
-                                     aria-valuemin="0" aria-valuemax="5"
-                                     style="width: {{ hotel.get_percentages.3 }}%">
-                                    <span class="sr-only">80% Complete (danger)</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pull-right" style="margin-left:10px;">{{ hotel.get_ratings.3 }}</div>
                     </div>
-                    <div class="pull-left">
-                        <div class="pull-left" style="width:35px; line-height:1;">
-                            <div style="height:9px; margin:5px 0;">3 <span
-                                    class="glyphicon glyphicon-star"></span>
+                    <div class="pull-left" style="width:180px;">
+                        <div class="progress" style="height:9px; margin:8px 0;">
+                            <div class="progress-bar progress-bar-primary" role="progressbar"
+                                 aria-valuenow="4"
+                                 aria-valuemin="0" aria-valuemax="5"
+                                 style="width: {{ hotel.get_percentages.3 }}%">
+                                <span class="sr-only">80% Complete (danger)</span>
                             </div>
                         </div>
-                        <div class="pull-left" style="width:180px;">
-                            <div class="progress" style="height:9px; margin:8px 0;">
-                                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="3"
-                                     aria-valuemin="0" aria-valuemax="5"
-                                     style="width:  {{ hotel.get_percentages.2 }}%">
-                                    <span class="sr-only">80% Complete (danger)</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pull-right" style="margin-left:10px;">{{ hotel.get_ratings.2 }}</div>
                     </div>
-                    <div class="pull-left">
-                        <div class="pull-left" style="width:35px; line-height:1;">
-                            <div style="height:9px; margin:5px 0;">2 <span
-                                    class="glyphicon glyphicon-star"></span>
-                            </div>
+                    <div class="pull-right" style="margin-left:10px;">{{ hotel.get_ratings.3 }}</div>
+                </div>
+                <div class="pull-left">
+                    <div class="pull-left" style="width:35px; line-height:1;">
+                        <div style="height:9px; margin:5px 0;">3 <span
+                                class="glyphicon glyphicon-star"></span>
                         </div>
-                        <div class="pull-left" style="width:180px;">
-                            <div class="progress" style="height:9px; margin:8px 0;">
-                                <div class="progress-bar progress-bar-warning" role="progressbar"
-                                     aria-valuenow="2"
-                                     aria-valuemin="0" aria-valuemax="5"
-                                     style="width:  {{ hotel.get_percentages.1 }}%">
-                                    <span class="sr-only">80% Complete (danger)</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pull-right" style="margin-left:10px;">{{ hotel.get_ratings.1 }}</div>
                     </div>
-                    <div class="pull-left">
-                        <div class="pull-left" style="width:35px; line-height:1;">
-                            <div style="height:9px; margin:5px 0;">1 <span
-                                    class="glyphicon glyphicon-star"></span>
+                    <div class="pull-left" style="width:180px;">
+                        <div class="progress" style="height:9px; margin:8px 0;">
+                            <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="3"
+                                 aria-valuemin="0" aria-valuemax="5"
+                                 style="width:  {{ hotel.get_percentages.2 }}%">
+                                <span class="sr-only">80% Complete (danger)</span>
                             </div>
                         </div>
-                        <div class="pull-left" style="width:180px;">
-                            <div class="progress" style="height:9px; margin:8px 0;">
-                                <div class="progress-bar progress-bar-danger" role="progressbar"
-                                     aria-valuenow="1"
-                                     aria-valuemin="0" aria-valuemax="5"
-                                     style="width: {{ hotel.get_percentages.0 }}%">
-                                    <span class="sr-only">80% Complete (danger)</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pull-right" style="margin-left:10px;">{{ hotel.get_ratings.0 }}</div>
                     </div>
+                    <div class="pull-right" style="margin-left:10px;">{{ hotel.get_ratings.2 }}</div>
+                </div>
+                <div class="pull-left">
+                    <div class="pull-left" style="width:35px; line-height:1;">
+                        <div style="height:9px; margin:5px 0;">2 <span
+                                class="glyphicon glyphicon-star"></span>
+                        </div>
+                    </div>
+                    <div class="pull-left" style="width:180px;">
+                        <div class="progress" style="height:9px; margin:8px 0;">
+                            <div class="progress-bar progress-bar-warning" role="progressbar"
+                                 aria-valuenow="2"
+                                 aria-valuemin="0" aria-valuemax="5"
+                                 style="width:  {{ hotel.get_percentages.1 }}%">
+                                <span class="sr-only">80% Complete (danger)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pull-right" style="margin-left:10px;">{{ hotel.get_ratings.1 }}</div>
+                </div>
+                <div class="pull-left">
+                    <div class="pull-left" style="width:35px; line-height:1;">
+                        <div style="height:9px; margin:5px 0;">1 <span
+                                class="glyphicon glyphicon-star"></span>
+                        </div>
+                    </div>
+                    <div class="pull-left" style="width:180px;">
+                        <div class="progress" style="height:9px; margin:8px 0;">
+                            <div class="progress-bar progress-bar-danger" role="progressbar"
+                                 aria-valuenow="1"
+                                 aria-valuemin="0" aria-valuemax="5"
+                                 style="width: {{ hotel.get_percentages.0 }}%">
+                                <span class="sr-only">80% Complete (danger)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pull-right" style="margin-left:10px;">{{ hotel.get_ratings.0 }}</div>
                 </div>
             </div>
         </div>
+    </div>
 
 
-        <h4>Reviews({{ count }})</h4>
-        <div class="pt-2 row" style="position: relative; left: 20px;">
-            <div class="rating_days d-flex justify-content-between">
-                            <span class="d-flex justify-content-center align-items-center">
-                                 <i class="fa fa-star" style="color: #FF9529"></i>
-                                 <i class="fa fa-star" style="color: #FF9529"></i>
-                                 <i class="fa fa-star" style="color: #FF9529"></i>
-                                 <i class="fa fa-star" style="color: #FF9529"></i>
-                                 <i class="fa fa-star" style="color: #FF9529"></i>
-                            </span>
-            </div>
-        </div>
-        <br>
-        <br>
+    <h4>Reviews({{ count }})</h4>
 
-        <div class="row" style="background-color: linen">
-            {% for key, value in dict.items %}
-                <div class="row">
-                    <div class="col-1 pt-4 px-5">
-                        <img class="pp" src="{{ value.profile_picture.url }}" style="height: 50px" alt="">
-                        <strong>{{ key.customer.username }}</strong> <br>
-                    </div>
-                    <div class="col-8">
-                        {{ key.review }}<br>
-                        Rating: <b>{{ key.rating }}</b>/10
-                    </div>
-                    <div class="col-2 ">
-                        {{ key.date }}
-                    </div>
-                    <div class="col-1"></div>
+    <br>
+    <div class="row" style="background-color: linen">
+        {% for key, value in dict.items %}
+            <div class="row">
+                <div class="col-1 pt-4 px-5">
+                    <img class="pp" src="{{ value.profile_picture.url }}" style="height: 50px" alt="">
+                    <strong>{{ key.customer.username }}</strong> <br>
                 </div>
+                <div class="col-8">
+                    {{ key.review }}<br>
+                    Rating: <b>{{ key.rating }}</b>/10
+                </div>
+                <div class="col-2 ">
+                    {{ key.date }}
+                </div>
+                <div class="col-1"></div>
+            </div>
 
-                <br><br>
-                <hr>
-            {% endfor %}
-        </div>
+            <br><br>
+            <hr>
+        {% endfor %}
+    </div>
 
 
-        <br>
-        {% csrf_token %}
+    <br>
+    {% csrf_token %}
 
-        <script>
-            $('.datepicker_1').datepicker({
-                format: 'yyyy-mm-dd',
-            });
-            $('.datepicker_2').datepicker({
-                format: 'yyyy-mm-dd',
-            });
-            $('.js-example-basic-single').select2({
-                dropdownParent: $('#reservationModal')
-            });
+    <script>
+        $('.datepicker_1').datepicker({
+            format: 'yyyy-mm-dd',
+        });
+        $('.datepicker_2').datepicker({
+            format: 'yyyy-mm-dd',
+        });
+        $('.js-example-basic-single').select2({
+            dropdownParent: $('#reservationModal')
+        });
 
-        </script>
+    </script>
 
-        <script>
-            $(function () {
-                $(".heart").on("click", function (e) {
-                    $(this).toggleClass("is-active");
+    <script>
+        $(function () {
+            $(".heart").on("click", function (e) {
+                $(this).toggleClass("is-active");
 
-                    e.preventDefault();
-                    var url = "/accomodation/like/{{ hotel.id }}"
+                e.preventDefault();
+                var url = "/accomodation/like/{{ hotel.id }}"
 
-                    $.ajax({
-                            type: 'POST',
-                            url: url,
-                            data: {
-                                csrfmiddlewaretoken: '{{ csrf_token }}'
-                            },
+                $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
 
-                            success: function (response) {
-                                console.log(response)
-                                location.reload()
-                            }
+                        success: function (response) {
+                            console.log(response)
+                            location.reload()
                         }
-                    )
-                });
+                    }
+                )
             });
-        </script>
+        });
+    </script>
 
 
-        <script>
-            $(function () {
-                $(".heart_unlike").on("click", function (e) {
-                    $(this).toggleClass("not-active");
+    <script>
+        $(function () {
+            $(".heart_unlike").on("click", function (e) {
+                $(this).toggleClass("not-active");
 
-                    e.preventDefault();
-                    var url = "/accomodation/unlike/{{ hotel.id }}"
+                e.preventDefault();
+                var url = "/accomodation/unlike/{{ hotel.id }}"
 
-                    $.ajax({
-                            type: 'POST',
-                            url: url,
-                            data: {
-                                csrfmiddlewaretoken: '{{ csrf_token }}'
-                            },
+                $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
 
-                            success: function (response) {
-                                console.log(response)
-                                window.location.reload()
-                            }
+                        success: function (response) {
+                            console.log(response)
+                            window.location.reload()
                         }
-                    )
-                });
+                    }
+                )
             });
-        </script>
+        });
+    </script>
 
-        <script>
-            $(document).ready(function () {
-                    $("#reservation_form").submit(function (e) {
-                            e.preventDefault();
-                            var url = "/accomodation/add_reservation/{{ hotel.id }}"
+    <script>
+        $(document).ready(function () {
+                $("#reservation_form").submit(function (e) {
+                        e.preventDefault();
+                        var url = "/accomodation/add_reservation/{{ hotel.id }}"
 
-                            $.ajax({
-                                    type: 'POST',
-                                    url: url,
-                                    data: $("#reservation_form").serializeArray(),
+                        $.ajax({
+                                type: 'POST',
+                                url: url,
+                                data: $("#reservation_form").serializeArray(),
 
-                                    success: function (response) {
-                                        console.log(response)
-                                        window.location.href = '/accomodation/reservations';
-                                    }
+                                success: function (response) {
+                                    console.log(response)
+                                    window.location.href = '/accomodation/reservations';
                                 }
-                            )
-                            $('#reservationModal{{ reservation.id }}').modal('hide');
-                            return false;
-                        }
-                    )
-                }
-            )
-        </script>
+                            }
+                        )
+                        $('#reservationModal{{ reservation.id }}').modal('hide');
+                        return false;
+                    }
+                )
+            }
+        )
+    </script>
+
+    <script>
+        function openPage(pageName, elmnt, color) {
+            // Hide all elements with class="tabcontent" by default */
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Remove the background color of all tablinks/buttons
+            tablinks = document.getElementsByClassName("tablink");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].style.backgroundColor = "";
+            }
+
+            // Show the specific tab content
+            document.getElementById(pageName).style.display = "block";
+
+            // Add the specific color to the button used to open the tab content
+            elmnt.style.backgroundColor = color;
+        }
+
+        // Get the element with id="defaultOpen" and click on it
+        document.getElementById("defaultOpen").click();
+    </script>
 
 {% endblock %}

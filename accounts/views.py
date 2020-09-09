@@ -1,4 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib import auth
@@ -16,10 +17,7 @@ class SignUpCustomer(View):
     def post(self, request):
         form = CustomerSignUpForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
+            user = form.save()
             login(request, user)
             return redirect('home')
         return render(request, 'signup_customer.html', {'form': form})
@@ -34,8 +32,6 @@ class SignUpOwner(View):
         form = OwnerSignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
             login(request, user)
             return redirect('home')
         return render(request, 'signup_owner.html', {'form': form})
@@ -64,7 +60,7 @@ class LogOut(View):
         return redirect('home')
 
 
-class Profile(View):
+class Profile(LoginRequiredMixin, View):
     def get(self, request):
         reviews = Review.objects.filter(customer_id=request.user.id)
         profile_picture = UserPP.objects.get(user__id=request.user.id)

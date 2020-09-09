@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.utils.datetime_safe import datetime
 from django.views import View
@@ -6,6 +7,8 @@ from accounts.models import CustomerLikes, UserPP
 from .forms import ReviewForm, ReservationForm
 from django.forms import modelformset_factory
 from django.db.models import Q
+from django.core.paginator import InvalidPage, Paginator
+from django.http import Http404
 
 
 class Home(View):
@@ -20,18 +23,25 @@ class Home(View):
         return render(request, 'customer_hotel_view.html', {'hotels': hotels, 'rooms': rooms})
 
 
-class Hotels(View):
+class Hotels(LoginRequiredMixin, View):
     def get(self, request):
         hotels = Hotel.objects.filter(owner=request.user.id)
 
         hotel_up_reservations = {}
         for hotel in hotels:
-            hotel_up_reservations[hotel] = Reservation.objects.filter(room__assoc_hotel=hotel, check_in__gte=datetime.now().date())
+            income = 0
+            for reservation in Reservation.objects.filter(room__assoc_hotel=hotel, check_out__lte=datetime.now().date()):
+                income += reservation.days() * 1000
+
+            hotel_up_reservations[hotel] = [Reservation.objects.filter(room__assoc_hotel=hotel,
+                                                                      check_in__gte=datetime.now().date()), income]
+
+
 
         return render(request, 'hotels.html', {'dict': hotel_up_reservations})
 
 
-class HotelHomePage(View):
+class HotelHomePage(LoginRequiredMixin, View):
     def get(self, request, hotel_id):
         form = ReservationForm()
         rooms = Room.objects.filter(assoc_hotel_id=hotel_id)
@@ -50,7 +60,7 @@ class HotelHomePage(View):
                        'form': form, 'images': images, 'liked': is_liked, 'dict': pps})
 
 
-class AddHotels(View):
+class AddHotels(LoginRequiredMixin, View):
     def post(self, request):
         if request.POST['name'] and request.FILES['icon'] and request.FILES.get('image') and request.POST['description'] \
                 and request.POST['rooms'] and request.POST['location_url'] and request.FILES['files']:
@@ -65,6 +75,12 @@ class AddHotels(View):
             new_hotel.location = request.POST['location']
             new_hotel.owner = request.user
             new_hotel.save()
+
+            # hotels = Hotel.objects.all()
+            # for hotel in hotels:
+            #     if hotel.geo_latitude is not None:
+            #         hotel.icon = request.FILES['icon']
+            #         hotel.image = request.FILES['image']
 
             for i in range(int(new_hotel.number_of_rooms)):
                 new_room = Room(
@@ -90,19 +106,31 @@ class AddHotels(View):
         return render(request, 'add_hotel.html', {'formset': formset})
 
 
-class HotelViewForCustomer(View):
+class HotelViewForCustomer(LoginRequiredMixin, View):
     def get(self, request):
-        unsorted_hotels = Hotel.objects.all()
+        hotels = Hotel.objects.all()
         rooms = Room.objects.all()
-        hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
+        paginator = Paginator(hotels, 20, orphans=5)
+        is_paginated = True if paginator.num_pages > 1 else False
+        page = request.GET.get('page') or 1
+        try:
+            current_page = paginator.page(page)
+        except InvalidPage as e:
+            raise Http404(str(e))
 
-        return render(request, 'customer_hotel_view.html', {'hotels': hotels, 'rooms': rooms})
+        context = {
+            'current_page': current_page,
+            'is_paginated': is_paginated
+        }
+        #hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
+
+        return render(request, 'customer_hotel_view.html', context)
 
     def post(self, request):
         return redirect('reservations')
 
 
-class ListReservations(View):
+class ListReservations(LoginRequiredMixin, View):
     def get(self, request):
         review_form = ReviewForm()
         upcoming_reservations = Reservation.objects.filter(check_out__gte=datetime.now().date()).order_by('check_in')
@@ -156,7 +184,7 @@ class AjaxMakeReservation(View):
         return redirect("reservations")
 
 
-class DeleteReservation(View):
+class DeleteReservation(LoginRequiredMixin, View):
     def post(self, request, reservation_id):
         reservation = Reservation.objects.get(id=reservation_id)
         reservation.delete()
@@ -184,6 +212,3 @@ class AjaxUnlike(View):
         like = CustomerLikes.objects.filter(user=request.user, liked_hotel=hotel)
         like.delete()
         return redirect('reservations')
-
-
-

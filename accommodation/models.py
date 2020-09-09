@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Avg
 from django.utils import timezone
+from django.utils.datetime_safe import datetime
 
 
 def next_day():
@@ -13,17 +14,26 @@ class Hotel(models.Model):
     name = models.CharField(max_length=200)
     location = models.CharField(max_length=100, default=None)
     location_url = models.CharField(max_length=5000, default=None)
-    description = models.CharField(max_length=2000, default=None)
+    description = models.CharField(max_length=2000, default=None, null=True, blank=True)
     number_of_rooms = models.IntegerField(default=0)
     image = models.ImageField(upload_to='images/', blank=True, null=True)
-    icon = models.ImageField(upload_to='images/')
+    icon = models.ImageField(upload_to='images/', null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    maps_url = models.CharField(max_length=2000, default=None, null=True, blank=True)
+    type = models.CharField(max_length=100, default=None, null=True, blank=True)
+    telephone = models.CharField(max_length=100, default=None, null=True, blank=True)
+    email = models.EmailField(max_length=200, default=None, null=True, blank=True)
+    hotel_website = models.CharField(max_length=1000, default=None, null=True, blank=True)
+    number_of_stars = models.IntegerField(default=5)
+    geo_latitude = models.CharField(max_length=100, default=None, null=True, blank=True)
+    geo_longitude = models.CharField(max_length=100, default=None, null=True, blank=True)
 
     def get_reviews_count(self):
         return Review.objects.filter(hotel_id=self.id).count()
 
     def get_avg_rating(self):
         reviews = Review.objects.filter(hotel_id=self.id)
+        print(reviews)
         if reviews is None:
             return 0
 
@@ -71,6 +81,9 @@ class Reservation(models.Model):
     check_out = models.DateField(default=next_day)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     guest = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def days(self):
+        return self.check_out.day - self.check_in.day
 
 
 class Review(models.Model):

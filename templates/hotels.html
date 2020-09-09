@@ -16,8 +16,8 @@
             </div>
             <div class="col-4">
                 <details>
-                    <summary>{{ value|length }} upcoming reservations</summary>
-                    {% for val in value %}
+                    <summary>{{ value.0|length }} upcoming reservations</summary>
+                    {% for val in value.0 %}
                         <p>{{ val.guest.get_full_name }}</p>
                         on {{ val.check_in }} - {{ val.check_out }} for {{ val.room }}
                         <br>
@@ -27,7 +27,7 @@
             <div class="col-4">
                 <details>
                     <summary>Total Income</summary>
-                        <p>not specified</p>
+                        <p> {{ value.1 }} TL </p>
                 </details>
             </div>
         </div>

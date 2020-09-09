@@ -31,47 +31,49 @@
                     <div class="col mb-3">
                         <div class="card">
                             <div class="card-body">
-                                 <form class="form" novalidate="" method="post" action="{% url 'profile' %}" enctype="multipart/form-data">
-                                 {% csrf_token %}
-                                <div class="e-profile">
-                                    <div class="row">
-                                        <div class="col-12 col-sm-auto mb-3">
-                                            <div class="mx-auto" style="height: 278px; ">
-                                                <div class="d-flex justify-content-center align-items-center rounded"
-                                                     style="height: 278px; background-color: rgb(233, 236, 239);">
-                                                    {% if picture %}
-                                                        <img src="{{ picture.url }}"
-                                                             height="278px">
-                                                    {% else %}
-                                                        <img src="{% static 'user.png' %}" height="278px">
+                                <form class="form" novalidate="" method="post" action="{% url 'profile' %}"
+                                      enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="e-profile">
+                                        <div class="row">
+                                            <div class="col-12 col-sm-auto mb-3">
+                                                <div class="mx-auto" style="height: 278px; ">
+                                                    <div class="d-flex justify-content-center align-items-center rounded"
+                                                         style="height: 278px; background-color: rgb(233, 236, 239);">
+                                                        {% if picture %}
+                                                            <img src="{{ picture.url }}" id="output"
+                                                                 height="278px">
+                                                        {% else %}
+                                                            <img src="{% static 'user.png' %}" height="278px">
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col d-flex flex-column flex-sm-row justify-content-between mb-3">
+                                                <div class="text-center text-sm-left mb-2 mb-sm-0">
+                                                    <h4 class="pt-sm-2 pb-1 mb-0 text-nowrap">{{ request.user.get_full_name }} </h4>
+                                                    {% if user.is_staff %}
+                                                        <p class="mb-0">@{{ request.user.username }}</p>
                                                     {% endif %}
+                                                    <div class="mt-2">
+                                                        <label for="file-upload" class="custom-file-upload">
+                                                            <i class="fa fa-fw fa-camera"></i> Change Photo
+                                                        </label>
+                                                        <input id="file-upload" type="file" name="file" accept="image/*"
+                                                               onchange="loadFile(event)"/>
+                                                    </div>
+                                                </div>
+                                                <div class="text-center text-sm-right">
+                                                    <div class="text-muted"><small>Joined
+                                                        at {{ request.user.date_joined }}</small></div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col d-flex flex-column flex-sm-row justify-content-between mb-3">
-                                            <div class="text-center text-sm-left mb-2 mb-sm-0">
-                                                <h4 class="pt-sm-2 pb-1 mb-0 text-nowrap">{{ request.user.get_full_name }} </h4>
-                                                {% if user.is_staff %}
-                                                    <p class="mb-0">@{{ request.user.username }}</p>
-                                                {% endif %}
-                                                <div class="mt-2">
-                                                    <label for="file-upload" class="custom-file-upload">
-                                                        <i class="fa fa-fw fa-camera"></i> Change Photo
-                                                    </label>
-                                                    <input id="file-upload" type="file" name="file"/>
-                                                </div>
-                                            </div>
-                                            <div class="text-center text-sm-right">
-                                                <div class="text-muted"><small>Joined
-                                                    at {{ request.user.date_joined }}</small></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <ul class="nav nav-tabs">
-                                        <li class="nav-item"><a href="" class="active nav-link">Settings</a></li>
-                                    </ul>
-                                    <div class="tab-content pt-3">
-                                        <div class="tab-pane active">
+                                        <ul class="nav nav-tabs">
+                                            <li class="nav-item"><a href="" class="active nav-link">Settings</a></li>
+                                        </ul>
+                                        <div class="tab-content pt-3">
+                                            <div class="tab-pane active">
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="row">
@@ -179,9 +181,9 @@
                                                                value="Save Changes">
                                                     </div>
                                                 </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                                 </form>
                             </div>
                         </div>
@@ -291,6 +293,16 @@
                 )
             }
         )
+    </script>
+
+    <script>
+        var loadFile = function (event) {
+            var output = document.getElementById('output');
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.onload = function () {
+                URL.revokeObjectURL(output.src) // free memory
+            }
+        };
     </script>
 
 {% endblock %}
