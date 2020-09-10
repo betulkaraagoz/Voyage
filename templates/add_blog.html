@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content %}
+    {% if error %}
+        {{ error }}
+        <br/>
+        <br/>
+    {% endif %}
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-6">
+            <h2>Write a New Blog Post</h2>
+            <form method="post" autocomplete="off" action="{% url 'add_blog' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+        <div class="col-5">
+            <IMG SRC="{% static 'travel.gif' %}" width="500px" style="margin-top: 115px">
+        </div>
+    </div>
+    <br>
+    <br>
+
+{% endblock %}

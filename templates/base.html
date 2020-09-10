@@ -22,7 +22,6 @@
     <link rel="stylesheet" href="{% static 'css/slick.css' %}">
     <link rel="stylesheet" href="{% static 'css/slicknav.css' %}">
 
-
     <link rel="stylesheet" href="https://cdnjs.cloudfare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
 
     <link rel="stylesheet" href="{% static 'css/ie10-viewport-bug-workaround.css' %}">
@@ -149,7 +148,7 @@
 
 <body>
 <header>
-    <div class="header-area ">
+    <div class="header-area">
         <div id="sticky-header" class="main-header-area">
             <div class="container-fluid">
                 <div class="header_bottom_border">
@@ -172,7 +171,10 @@
 
                                         {% if user.is_authenticated and not user.is_staff %}
                                             <li><a href="{% url 'customer_hotel' %}">Hotels</a></li>
+                                            <li><a href="{% url 'explore' %}">Explore</a></li>
+                                            <li><a href="{% url 'add_blog' %}"><img src="{% static '/img/indir.png' %}">Blog</a></li>
                                         {% endif %}
+
 
                                         {% if user.is_authenticated %}
                                             <li><a class="nav-link active" href="">
@@ -284,11 +286,24 @@
 
 <script src="{% static 'js/main.js' %}"></script>
 
-<div class="container">
-    {% block content %}
-    {% endblock %}
-</div>
+{% block content %}
+{% endblock %}
 
+<footer class="footer">
+    <div class="copy-right_text">
+        <div class="container">
+            <div class="footer_border"></div>
+            <div class="row">
+                <div class="col-xl-12">
+                    <p class="copy_right text-center">
+                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                        Copyright Betul Karagoz&copy;<script>document.write(new Date().getFullYear());</script>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
 
 <body/>
 <html/>

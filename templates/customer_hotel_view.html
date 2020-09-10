@@ -6,6 +6,7 @@
     <br> <br>
     {% for hotel in current_page %}
         <div class="row">
+            <div class="col-1"></div>
             {% if hotel.icon %}
                 <div class="pt-5 col-2">
                     <a href="{% url 'hotel_homepage' hotel.id %}"><img src="{{ hotel.icon.url }}" class="img-fluid"
@@ -13,7 +14,7 @@
                 </div>
             {% endif %}
 
-            <div class="col-3">
+            <div class="col-2">
                 <a href="{% url 'hotel_homepage' hotel.id %}">
                     <h3>{{ hotel.name }}</h3></a>
                 </a>
@@ -37,6 +38,7 @@
                 <br>
                 <h4>1000 <img src="{% static 'TL.jpg' %}" style="height: 10px" class="img-fluid"></h4>
             </div>
+            <div class="col-1"></div>
 
 
             <br>

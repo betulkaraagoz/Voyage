@@ -44,11 +44,10 @@ class Hotels(LoginRequiredMixin, View):
 class HotelHomePage(LoginRequiredMixin, View):
     def get(self, request, hotel_id):
         form = ReservationForm()
-        rooms = Room.objects.filter(assoc_hotel_id=hotel_id)
-        reviews = Review.objects.filter(hotel_id=hotel_id)
+        reviews = Review.objects.select_related('customer', 'hotel').filter(hotel_id=hotel_id)
         reviews_count = reviews.count()
         hotel = Hotel.objects.get(id=hotel_id)
-        images = AdditionalImages.objects.filter(hotel_id=hotel_id)
+        images = AdditionalImages.objects.select_related('hotel').filter(hotel_id=hotel_id)
         is_liked = CustomerLikes.objects.filter(liked_hotel_id=hotel_id, user_id=request.user.id).exists()
 
         pps = {}
@@ -56,7 +55,7 @@ class HotelHomePage(LoginRequiredMixin, View):
             pps[review] = UserPP.objects.get(user_id=review.customer.id)
 
         return render(request, 'hotel_homepage.html',
-                      {'hotel': hotel, 'rooms': rooms, 'reviews': reviews, 'count': reviews_count,
+                      {'hotel': hotel, 'reviews': reviews, 'count': reviews_count,
                        'form': form, 'images': images, 'liked': is_liked, 'dict': pps})
 
 
@@ -101,9 +100,7 @@ class AddHotels(LoginRequiredMixin, View):
             return render(request, 'add_hotel.html', {'error': 'All fields are required'})
 
     def get(self, request):
-        ImageFormSet = modelformset_factory(AdditionalImages, fields=('image',), extra=5)
-        formset = ImageFormSet(queryset=AdditionalImages.objects.none())
-        return render(request, 'add_hotel.html', {'formset': formset})
+        return render(request, 'add_hotel.html')
 
 
 class HotelViewForCustomer(LoginRequiredMixin, View):

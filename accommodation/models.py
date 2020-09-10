@@ -3,7 +3,6 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Avg
 from django.utils import timezone
-from django.utils.datetime_safe import datetime
 
 
 def next_day():
