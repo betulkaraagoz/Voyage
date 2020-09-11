@@ -6,7 +6,8 @@ class BlogForm(forms.ModelForm):
     class Meta:
         model = BlogPost
         widgets = {
-            'post': forms.Textarea(attrs={'class': 'ckeditor'}),
+            'post_part_1': forms.Textarea(attrs={'class': 'ckeditor'}),
+            'post_part_2': forms.Textarea(attrs={'class': 'ckeditor'}),
         }
 
-        fields = ['title', 'place', 'post', 'cover_image']
+        fields = ['title', 'place', 'post_part_1', 'subtitle', 'post_part_2', 'cover_image']

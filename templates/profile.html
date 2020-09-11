@@ -5,12 +5,74 @@
         input[type="file"] {
             display: none;
         }
+
+        .btn.btn-primary {
+            background: #ff895d;
+            border: 1px solid #ff895d;
+            color: #fff;
+            border-radius: 30px;
+        }
     </style>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 
     <div class="container">
         {% csrf_token %}
         <div class="row flex-lg-nowrap">
+            <div class="col-12 col-md-3 mb-3">
+                {% if not user.is_staff %}
+                    <h6>Your Blog Posts</h6>
+                    <div style="overflow-y: scroll; height:600px;">
+                        {% for blog in blogs %}
+                            <div class="card">
+                                <div class="card-body">
+                                    <a href="{% url 'blog_details' blog.id %}">
+                                        <img src="{{ blog.cover_image.url }}" height="140px">
+                                        <h6 class="card-title font-weight-bold">{{ blog.title }}</h6>
+                                    </a>
+
+
+                                    <br>
+                                    <button type="button" class="btn btn-light"
+                                            data-toggle="modal" data-target="#deleteBlog{{ blog.id }}">
+                                        Delete
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="deleteBlog{{ blog.id }}" tabindex="-1"
+                                         role="dialog"
+                                         aria-labelledby="deleteLabel{{ blog.id }}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title"
+                                                        id="deleteBlogLabel{{ blog.id }}">Delete
+                                                        Blog</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form method="post"
+                                                      action=""
+                                                      id="delete{{ blog.id }}">
+                                                    <div class="modal-body">
+                                                        {% csrf_token %}
+                                                        You are about to delete blog {{ blog.title }}? <br>
+                                                        <br>Are you sure?
+                                                    </div>
+                                                    <button id="submit_delete" class="btn btn-primary"
+                                                           style="margin-left: 20px; width: 100px ">Yes
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
             {#                <div class="col-12 col-lg-auto mb-3" style="width: 200px;">#}
             {#                    <div class="card p-3">#}
             {#                        <div class="e-navlist e-navlist--active-bg">#}
@@ -190,23 +252,18 @@
                     </div>
 
                     <div class="col-12 col-md-3 mb-3">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <div class="px-xl-3">
-                                    <form id="logout" method="POST" action="{% url 'logout' %}">
-                                        {% csrf_token %}
-                                        <button class="btn btn-block btn-secondary">
-                                            <i class="fa fa-sign-out"></i>
-                                            <span>Logout</span>
-                                        </button>
-                                        <input type="hidden"/>
-                                    </form>
-
-                                </div>
-                            </div>
+                        <div class="px-xl-3">
+                            <form id="logout" method="POST" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button class="btn btn-primary p-3 px-xl-4 py-xl-3">
+                                    <i class="fa fa-sign-out"></i>
+                                    <span>Logout</span>
+                                </button>
+                                <input type="hidden"/>
+                            </form>
                         </div>
                         <br>
-                        {% if user.is_staff is not True %}
+                        {% if not user.is_staff %}
                             <h6>Your Reviews</h6>
                             <div style="overflow-y: scroll; height:600px;">
                                 {% for review in reviews %}
@@ -251,7 +308,7 @@
                                                                 <br>Are you sure?
                                                             </div>
                                                             <button id="submit_delete" class="btn btn-primary"
-                                                                    style="width: 500px">Yes
+                                                                    style="margin-left: 20px; width: 100px">Yes
                                                             </button>
                                                         </form>
                                                     </div>
@@ -288,6 +345,32 @@
                         )
 
                         $('#deleteModal{{ review.id }}').modal('hide');
+                        return false;
+                    }
+                )
+            }
+        )
+    </script>
+
+    <script>
+        $(document).ready(function () {
+                $("#delete{{ blog.id }}").submit(function (e) {
+                        e.preventDefault();
+                        var url = "/explore/delete_blog/{{ blog.id }}"
+
+                        $.ajax({
+                                type: 'POST',
+                                data: {
+                                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                                },
+                                url: url,
+                                success: function (response) {
+                                    console.log(response)
+                                }
+                            }
+                        )
+
+                        $('#deleteBlog{{ blog.id }}').modal('hide');
                         return false;
                     }
                 )

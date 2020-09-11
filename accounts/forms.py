@@ -24,7 +24,7 @@ class CustomerSignUpForm(UserCreationForm):
         fields = ('first_name', 'last_name', 'username',)
 
     def save(self, commit=True):
-        user = super(UserCreationForm, self).save(commit=False)
+        user = super(CustomerSignUpForm, self).save(commit=False)
         user.save()
         return user
 
@@ -39,7 +39,7 @@ class OwnerSignUpForm(UserCreationForm):
         fields = ('first_name', 'last_name', 'username', 'email')
 
     def save(self, commit=True):
-        user = super(UserCreationForm, self).save(commit=False)
+        user = super(OwnerSignUpForm, self).save(commit=False)
         user.email = user.username
         user.is_staff = True
         user.save()

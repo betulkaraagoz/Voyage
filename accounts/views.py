@@ -10,7 +10,8 @@ from django.views.generic import View
 
 from accommodation.models import Review
 from accounts.forms import CustomerSignUpForm, OwnerSignUpForm
-from accounts.models import UserPP
+from accounts.models import UserPP, CustomerLikes, BlogLikes
+from blog.models import BlogPost
 
 
 class SignUpCustomer(View):
@@ -48,6 +49,7 @@ class LogIn(View):
             auth.login(request, user)
             return redirect('home')
         else:
+            print("here")
             return render(request, 'login.html', {'error': 'username or password is incorrect'})
 
     def get(self, request):
@@ -62,10 +64,11 @@ class LogOut(View):
 
 class Profile(LoginRequiredMixin, View):
     def get(self, request):
+        blogs = BlogPost.objects.filter(author_id=request.user.id)
         reviews = Review.objects.filter(customer_id=request.user.id)
         profile_picture = UserPP.objects.get(user__id=request.user.id)
 
-        return render(request, 'profile.html', {'picture': profile_picture.profile_picture, 'reviews': reviews})
+        return render(request, 'profile.html', {'picture': profile_picture.profile_picture, 'reviews': reviews, 'blogs': blogs})
 
     def post(self, request):
         user = User.objects.get(id=request.user.id)
@@ -92,3 +95,11 @@ class Profile(LoginRequiredMixin, View):
             new_pp.save()
 
         return redirect('profile')
+
+
+class Wishlist(View):
+    def get(self, request):
+        liked_hotels = CustomerLikes.objects.filter(user=request.user)
+        liked_blogs = BlogLikes.objects.filter(user=request.user)
+        return render(request, 'wishlist.html', {'liked_hotels': liked_hotels, 'liked_blogs': liked_blogs})
+

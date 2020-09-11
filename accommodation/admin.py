@@ -1,5 +1,5 @@
 from django.contrib import admin
-from blog.models import BlogPost
+from blog.models import BlogPost, BlogPostImages
 from .models import Hotel, Reservation, Room, Review, AdditionalImages
 from accounts.models import CustomerLikes, UserPP
 
@@ -11,3 +11,4 @@ admin.site.register(AdditionalImages)
 admin.site.register(CustomerLikes)
 admin.site.register(UserPP)
 admin.site.register(BlogPost)
+admin.site.register(BlogPostImages)

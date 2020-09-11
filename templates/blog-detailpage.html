@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block content %}
+    <style>
+        .bttm {
+            position: absolute;
+            top: 150%;
+            right: 60%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+
+    <div class="row" style="margin-left: 200px">
+       <h1 class="text-center" style="font-family: 'Nothing You Could Do'">{{ blog.title }}    </h1>
+        <form method="post" id="like_form">
+            {% csrf_token %}
+            <div class="stage" style="margin-left: 30px">
+                {% if not liked %}
+                    <div class="heart"></div>
+                {% endif %}
+                {% if liked %}
+                    <div class="heart_unlike"></div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+
+    <div class="row" data-aos="fade-up"><img src="{{ blog.cover_image.url }}" alt="Norway" style="width:100%;">
+        <div class="bttm"><p style="color: white; font-size: 20px">{{ blog.date }} | {{ blog.place }}
+            | {{ blog.author.get_full_name }}</p></div>
+    </div>
+    <br><br>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-10">
+                <p>{{ blog.post_part_1 }}</p>
+                <br><br>
+                <h3 class="text-center" style="font-family: 'Nothing You Could Do'">{{ blog.subtitle }}</h3>
+                <p>{{ blog.post_part_2 }}</p>
+
+                {% for p in photos %}
+                    <br><br>
+                    <img src="{{ p.image.url }}" alt="Norway" class="img-fluid" width="1000px">
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="video_area video_bg overlay">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="video_wrap text-center">
+                        <h3>{{ blog.place }} Vlog</h3>
+                        <div class="video_icon">
+                            <a class="popup-video video_play_button" href="{{ blog.video_url }}">
+                                <i class="fa fa-play"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+
+    <script>
+        $(function () {
+            $(".heart").on("click", function (e) {
+                $(this).toggleClass("is-active");
+                e.preventDefault();
+                var url = "/explore/like/{{ blog.id }}"
+
+                $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
+
+                        success: function (response) {
+                            console.log(response)
+                            location.reload()
+                        }
+                    }
+                )
+            });
+        });
+    </script>
+
+
+    <script>
+        $(function () {
+            $(".heart_unlike").on("click", function (e) {
+                $(this).toggleClass("not-active");
+
+                e.preventDefault();
+                var url = "/explore/unlike/{{ blog.id }}"
+
+                $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
+
+                        success: function (response) {
+                            console.log(response)
+                            window.location.reload()
+                        }
+                    }
+                )
+            });
+        });
+    </script>
+
+{% endblock %}

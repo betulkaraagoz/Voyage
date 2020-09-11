@@ -157,8 +157,7 @@
                             <div class="logo">
                                 <a href="{% url 'home' %}"><h2
                                         style="color: black; @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Shadows+Into+Light&display=swap');">
-                                    <img src="{% static 'logo.png' %}" alt="">
-                                    voyage
+                                    <h1 style="font-family: 'Nothing You Could Do'"> <img src="{% static 'logo.png' %}" alt=""> Voyage</h1>
                                 </h2>
                                 </a>
                             </div>
@@ -184,7 +183,7 @@
                                                     {% if not user.is_staff %}
                                                         <li><a href="{% url 'profile' %}">Profile</a></li>
                                                         <li><a href="{% url 'reservations' %}">Reservations</a></li>
-                                                        <li><a href="">Wishlist</a></li>
+                                                        <li><a href="{% url 'wishlist' %}">Wishlist</a></li>
                                                     {% endif %}
 
                                                     {% if user.is_staff %}

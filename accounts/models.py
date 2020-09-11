@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from accommodation.models import Hotel
+from blog.models import BlogPost
 
 
 class OwnerMail(models.Model):
@@ -11,6 +12,11 @@ class OwnerMail(models.Model):
 class CustomerLikes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     liked_hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE)
+
+
+class BlogLikes(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    liked_blog = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
 
 
 class UserPP(models.Model):

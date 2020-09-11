@@ -9,4 +9,5 @@ urlpatterns = [
     path('login', views.LogIn.as_view(), name='login'),
     path('logout', views.LogOut.as_view(), name='logout'),
     path('profile/', views.Profile.as_view(), name='profile'),
+    path('wishlist/', views.Wishlist.as_view(), name='wishlist'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

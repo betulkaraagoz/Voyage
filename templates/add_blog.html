@@ -14,6 +14,10 @@
             <form method="post" autocomplete="off" action="{% url 'add_blog' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form|crispy }}
+
+                Select Pictures:
+                <input name="files" type="file" size="50" accept="image/*" multiple>
+                <br>
                 <button class="btn btn-primary" type="submit">Submit</button>
             </form>
         </div>
