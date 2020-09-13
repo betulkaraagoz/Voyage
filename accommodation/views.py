@@ -4,6 +4,7 @@ from django.utils.datetime_safe import datetime
 from django.views import View
 from accommodation.models import Hotel, Room, Reservation, Review, AdditionalImages
 from accounts.models import CustomerLikes, UserPP
+from blog.models import BlogPost
 from .forms import ReviewForm, ReservationForm
 from django.forms import modelformset_factory
 from django.db.models import Q
@@ -30,13 +31,12 @@ class Hotels(LoginRequiredMixin, View):
         hotel_up_reservations = {}
         for hotel in hotels:
             income = 0
-            for reservation in Reservation.objects.filter(room__assoc_hotel=hotel, check_out__lte=datetime.now().date()):
+            for reservation in Reservation.objects.filter(room__assoc_hotel=hotel,
+                                                          check_out__lte=datetime.now().date()):
                 income += reservation.days() * 1000
 
             hotel_up_reservations[hotel] = [Reservation.objects.filter(room__assoc_hotel=hotel,
-                                                                      check_in__gte=datetime.now().date()), income]
-
-
+                                                                       check_in__gte=datetime.now().date()), income]
 
         return render(request, 'hotels.html', {'dict': hotel_up_reservations})
 
@@ -106,7 +106,7 @@ class AddHotels(LoginRequiredMixin, View):
 class HotelViewForCustomer(LoginRequiredMixin, View):
     def get(self, request):
         hotels = Hotel.objects.all()
-        rooms = Room.objects.all()
+
         paginator = Paginator(hotels, 20, orphans=5)
         is_paginated = True if paginator.num_pages > 1 else False
         page = request.GET.get('page') or 1
@@ -119,7 +119,7 @@ class HotelViewForCustomer(LoginRequiredMixin, View):
             'current_page': current_page,
             'is_paginated': is_paginated
         }
-        #hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
+        # hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
 
         return render(request, 'customer_hotel_view.html', context)
 
@@ -132,9 +132,21 @@ class ListReservations(LoginRequiredMixin, View):
         review_form = ReviewForm()
         upcoming_reservations = Reservation.objects.filter(check_out__gte=datetime.now().date()).order_by('check_in')
         previous_reservations = Reservation.objects.filter(check_out__lte=datetime.now().date()).order_by('check_in')
+
+        suggestions = []
+
+        for reservation in upcoming_reservations:
+            blogs = BlogPost.objects.filter(Q(title__contains=reservation.room.assoc_hotel.location.lower()) | Q(
+                title__icontains=reservation.room.assoc_hotel.name.lower()) | Q(
+                place__icontains=reservation.room.assoc_hotel.name.lower()) | Q(
+                place__icontains=reservation.room.assoc_hotel.location.lower()))
+
+            for blog in blogs:
+                suggestions.append(blog)
+
         return render(request, 'view_reservations.html',
                       {'previous_reservations': previous_reservations, 'upcoming_reservations': upcoming_reservations,
-                       'form': review_form})
+                       'form': review_form, 'suggestions': suggestions})
 
 
 class AjaxListReservations(View):

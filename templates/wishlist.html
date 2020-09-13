@@ -1,4 +1,134 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-    <h1>Wishlist</h1>
+    <style>
+        .centered {
+            position: absolute;
+            top: 75%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .blog-entry {
+            margin-bottom: 6em;
+        }
+
+        .text .big {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            font-size: 100px;
+            line-height: .8;
+            z-index: -1;
+            color: #FAA0C7;
+            font-family: "Abril Fatface";
+        }
+
+        .btn.btn-primary {
+            background: #FB84B8;
+            border: 1px solid #FB84B8;
+            color: #fff;
+            border-radius: 30px;
+        }
+
+        .btn.btn-secondary {
+            background: #F98A78;
+            border: 1px solid #F98A78;
+            color: #fff;
+            border-radius: 30px;
+        }
+
+
+        .sidebar-box {
+            margin-bottom: 30px;
+            padding: 25px;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .subs-wrap {
+            background: #FB84B8 !important;
+            display: block;
+            width: 100%;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .ftco-counter {
+            padding: 6em 0;
+        }
+
+        #section-counter {
+            position: relative;
+            z-index: 0;
+        }
+    </style>
+    <div class="row" data-aos="fade-up"><img src="{% static 'img/bg_6.jpg' %}" alt="Norway" style="width:100%;">
+        <div class="centered"><p style="color: white; font-size: 60px">Wishlist</p></div>
+    </div>
+
+    <br><br>
+
+    <div class="container">
+        <h2 class="mb-4 text-center">Liked Blogs</h2>
+
+        <div class="row">
+            {% for blog in liked_blogs %}
+                <div class="col-lg-4">
+                    <div class="blog-entry ftco-animate">
+                        <div class="text pt-2 mt-5">
+                            <div class="col-md-12">
+                                <span class="big">{{ blog.liked_blog.continent }}</span>
+                                <h3 class="mb-4"><a
+                                        href="{% url 'blog_details' blog.liked_blog.id %}">{{ blog.liked_blog.title }}</a>
+                                </h3>
+
+                                <div class="text pt-2 mt-5">
+                                    <img src="{{ blog.liked_blog.cover_image.url }}" class="img-fluid">
+                                    <br><br>
+                                    <div class="half">
+                                        <p><a href="{% url 'blog_details' blog.liked_blog.id %}"
+                                              class="btn btn-primary p-3 px-xl-4 py-xl-3">Continue
+                                            Reading</a></p>
+                                    </div>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <hr>
+
+
+        <h2 class="mb-4 text-center">Liked Hotels</h2>
+        <div class="row">
+            {% for hotel in liked_hotels %}
+                <div class="col-lg-4">
+                    <div class="blog-entry ftco-animate">
+                        <div class="text pt-2 mt-5">
+                            <div class="col-md-12">
+                                <h3 class="mb-4">{{ hotel.liked_hotel.name }}<a
+                                        href="{% url 'hotel_homepage' hotel.liked_hotel.id %}"></a>
+                                </h3>
+
+                                <div class="text pt-2 mt-5">
+                                    <img src="{{ hotel.liked_hotel.image.url }}" class="img-fluid">
+                                    <br><br>
+                                    <div class="half">
+                                        <p><a href="{% url 'hotel_homepage' hotel.liked_hotel.id %}"
+                                              class="btn btn-secondary p-3 px-xl-4 py-xl-3">View Details</a></p>
+                                    </div>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+
+    </div>
+
 {% endblock %}

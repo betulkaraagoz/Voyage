@@ -1,20 +1,40 @@
+from django.core.paginator import Paginator, InvalidPage
+from django.http import Http404
 from django.shortcuts import render, redirect
 from django.utils.datetime_safe import datetime
 from django.views import View
-
 from accounts.models import UserPP, BlogLikes
 from blog.forms import BlogForm
 from blog.models import BlogPost, BlogPostImages
+from django.db.models import Q
 
 
 class ExploreHome(View):
     def get(self, request):
         blog_objects = BlogPost.objects.all()
+
         blogs = {}
         for blog in blog_objects:
             blogs[blog] = UserPP.objects.get(user_id=blog.author.id)
 
-        return render(request, 'index3.html', {'blogs': blogs})
+        paginator = Paginator(blog_objects, 3, orphans=1)
+        is_paginated = True if paginator.num_pages > 1 else False
+        page = request.GET.get('page') or 1
+        try:
+            current_page = paginator.page(page)
+        except InvalidPage as e:
+            raise Http404(str(e))
+
+
+        continents = {"Africa": BlogPost.objects.filter(continent__contains="Africa").count(),
+                      "Asia": BlogPost.objects.filter(continent__contains="Asia").count(),
+                      "Australia": BlogPost.objects.filter(continent__contains="Australia").count(),
+                      "Europe": BlogPost.objects.filter(continent__contains="Europe").count(),
+                      "North America": BlogPost.objects.filter(continent__contains="North America").count(),
+                      "South America": BlogPost.objects.filter(continent__contains="South America").count()}
+
+        return render(request, 'index3.html', {'blogs': blogs, 'continents': continents, 'current_page': current_page,
+                                               'is_paginated': is_paginated})
 
 
 class AddBlog(View):
@@ -27,6 +47,7 @@ class AddBlog(View):
         if form.is_valid():
             title = request.POST.get('title')
             place = request.POST.get('place')
+            continent = request.POST.get('continent')
             post_part_1 = request.POST.get('post_part_1')
             post_part_2 = request.POST.get('post_part_2')
             subtitle = request.POST.get('subtitle')
@@ -40,6 +61,7 @@ class AddBlog(View):
                                                 post_part_1=post_part_1,
                                                 post_part_2=post_part_2,
                                                 subtitle=subtitle,
+                                                continent=continent,
                                                 cover_image=cover_image,
                                                 date=datetime.now())
 
@@ -52,7 +74,7 @@ class AddBlog(View):
         else:
             print(form.errors)
 
-        return redirect('explore')
+        return redirect('blog_details', blog_post.id)
 
 
 class BlogDetails(View):
@@ -60,8 +82,10 @@ class BlogDetails(View):
         blog = BlogPost.objects.get(id=blog_id)
         blog_photos = BlogPostImages.objects.filter(blog_id=blog_id)
         is_liked = BlogLikes.objects.filter(user_id=request.user.id, liked_blog_id=blog_id).exists()
+        like_count = BlogLikes.objects.all().count()
 
-        return render(request, 'blog-detailpage.html', {'blog': blog, 'photos': blog_photos, 'liked': is_liked})
+        return render(request, 'blog-detailpage.html',
+                      {'blog': blog, 'photos': blog_photos, 'liked': is_liked, 'count': like_count})
 
 
 class DeleteBlog(View):
@@ -85,3 +109,57 @@ class AjaxUnlike(View):
         like = BlogLikes.objects.filter(user_id=request.user.id, liked_blog=blog)
         like.delete()
         return redirect('reservations')
+
+
+class FilterExplore(View):
+    def get(self, request, filter):
+        blog_objects = BlogPost.objects.filter(place__contains=filter)
+
+        blogs = {}
+        for blog in blog_objects:
+            blogs[blog] = UserPP.objects.get(user_id=blog.author.id)
+
+        paginator = Paginator(blog_objects, 3, orphans=1)
+        is_paginated = True if paginator.num_pages > 1 else False
+        page = request.GET.get('page') or 1
+        try:
+            current_page = paginator.page(page)
+        except InvalidPage as e:
+            raise Http404(str(e))
+
+        continents = {"Africa": BlogPost.objects.filter(place__contains="Africa").count(),
+                      "Asia": BlogPost.objects.filter(place__contains="Asia").count(),
+                      "Australia": BlogPost.objects.filter(place__contains="Australia").count(),
+                      "Europe": BlogPost.objects.filter(place__contains="Europe").count(),
+                      "North America": BlogPost.objects.filter(place__contains="North America").count(),
+                      "South America": BlogPost.objects.filter(place__contains="South America").count()}
+
+        return render(request, 'index3.html', {'blogs': blogs, 'continents': continents, 'current_page': current_page,
+                                               'is_paginated': is_paginated})
+
+
+class SearchExplore(View):
+    def post(self, request):
+        blog_objects = BlogPost.objects.filter(Q(title__icontains=request.POST.get('search')) | Q(place__icontains=request.POST.get('search'))| Q(author__first_name__icontains=request.POST.get('search')))
+
+        blogs = {}
+        for blog in blog_objects:
+            blogs[blog] = UserPP.objects.get(user_id=blog.author.id)
+
+        paginator = Paginator(blog_objects, 3, orphans=1)
+        is_paginated = True if paginator.num_pages > 1 else False
+        page = request.GET.get('page') or 1
+        try:
+            current_page = paginator.page(page)
+        except InvalidPage as e:
+            raise Http404(str(e))
+
+        continents = {"Africa": BlogPost.objects.filter(place__contains="Africa").count(),
+                      "Asia": BlogPost.objects.filter(place__contains="Asia").count(),
+                      "Australia": BlogPost.objects.filter(place__contains="Australia").count(),
+                      "Europe": BlogPost.objects.filter(place__contains="Europe").count(),
+                      "North America": BlogPost.objects.filter(place__contains="North America").count(),
+                      "South America": BlogPost.objects.filter(place__contains="South America").count()}
+
+        return render(request, 'index3.html', {'blogs': blogs, 'continents': continents, 'current_page': current_page,
+                                               'is_paginated': is_paginated})

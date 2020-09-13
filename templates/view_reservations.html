@@ -2,6 +2,15 @@
 {% load crispy_forms_filters %}
 {% load static %}
 {% block content %}
+      <style>
+
+        .btn.btn-primary {
+            background: #ff895d;
+            border: 1px solid #ff895d;
+            color: #fff;
+            border-radius: 30px;
+        }
+    </style>
     <h1 style="margin-left: 100px">Upcoming Reservations</h1>
     <hr style="height:2px;border-width:0;color:gray;background-color:black;width: 85%;">
     {% for reservation in upcoming_reservations %}
@@ -52,11 +61,42 @@
                     </div>
                 </div>
             </div>
-           <div class="col-1"></div>
+            <div class="col-1"></div>
         </div>
         <br>
-
     {% endfor %}
+
+
+    <div class="row">
+        <div class="container">
+        <details>
+        <summary>Take a look at our suggestions before your upcoming itinerary</summary>
+            {% for suggestion in suggestions %}
+                <div class="col-lg-4">
+                    <div class="blog-entry ftco-animate">
+                        <div class="text pt-2 mt-5">
+                            <div class="col-md-12">
+                                <h3 class="mb-4">{{ suggestion.title }}<a
+                                        href="{% url 'blog_details' suggestion.id %}"></a>
+                                </h3>
+
+                                <div class="text pt-2 mt-5">
+                                    <img src="{{ suggestion.cover_image.url }}" class="img-fluid">
+                                    <br><br>
+                                    <div class="half">
+                                        <p><a href="{% url 'blog_details' suggestion.id %}"
+                                              class="btn btn-primary p-3 px-xl-4 py-xl-3">Read the Article</a></p>
+                                    </div>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </details>
+        </div>
+    </div>
 
 
     <h1 style="margin-left: 100px">Previous Reservations</h1>
@@ -79,7 +119,7 @@
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-dark" style="background-color: lightyellow; color: black"
                         data-toggle="modal" data-target="#exampleModal{{ reservation.id }}">
-                     <img src="{% static 'pen.webp' %}" width="20px">
+                    <img src="{% static 'pen.webp' %}" width="20px">
                     Add Review
                 </button>
 

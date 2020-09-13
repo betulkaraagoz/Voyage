@@ -64,9 +64,13 @@ class LogOut(View):
 
 class Profile(LoginRequiredMixin, View):
     def get(self, request):
-        blogs = BlogPost.objects.filter(author_id=request.user.id)
+        blog_objects = BlogPost.objects.filter(author_id=request.user.id)
         reviews = Review.objects.filter(customer_id=request.user.id)
         profile_picture = UserPP.objects.get(user__id=request.user.id)
+
+        blogs = {}
+        for blog in blog_objects:
+            blogs[blog] = BlogLikes.objects.filter(liked_blog_id=blog.id)
 
         return render(request, 'profile.html', {'picture': profile_picture.profile_picture, 'reviews': reviews, 'blogs': blogs})
 
@@ -101,5 +105,6 @@ class Wishlist(View):
     def get(self, request):
         liked_hotels = CustomerLikes.objects.filter(user=request.user)
         liked_blogs = BlogLikes.objects.filter(user=request.user)
+
         return render(request, 'wishlist.html', {'liked_hotels': liked_hotels, 'liked_blogs': liked_blogs})
 

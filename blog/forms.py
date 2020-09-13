@@ -10,4 +10,4 @@ class BlogForm(forms.ModelForm):
             'post_part_2': forms.Textarea(attrs={'class': 'ckeditor'}),
         }
 
-        fields = ['title', 'place', 'post_part_1', 'subtitle', 'post_part_2', 'cover_image']
+        fields = ['title', 'place', 'continent', 'post_part_1', 'subtitle', 'post_part_2', 'cover_image']

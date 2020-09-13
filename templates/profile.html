@@ -22,46 +22,70 @@
                 {% if not user.is_staff %}
                     <h6>Your Blog Posts</h6>
                     <div style="overflow-y: scroll; height:600px;">
-                        {% for blog in blogs %}
+                        {% for key, value in blogs.items %}
                             <div class="card">
                                 <div class="card-body">
-                                    <a href="{% url 'blog_details' blog.id %}">
-                                        <img src="{{ blog.cover_image.url }}" height="140px">
-                                        <h6 class="card-title font-weight-bold">{{ blog.title }}</h6>
+                                    <a href="{% url 'blog_details' key.id %}">
+                                        <img src="{{ key.cover_image.url }}" height="140px">
+                                        <h6 class="card-title font-weight-bold">{{ key.title }}</h6>
                                     </a>
-
 
                                     <br>
                                     <button type="button" class="btn btn-light"
-                                            data-toggle="modal" data-target="#deleteBlog{{ blog.id }}">
+                                            data-toggle="modal" data-target="#deleteBlog{{ key.id }}">
                                         Delete
                                     </button>
 
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="deleteBlog{{ blog.id }}" tabindex="-1"
+                                    <span class="fa fa-heart"  data-toggle="modal" data-target="#likeModal{{ key.id }}"
+                                          style="margin-left: 70px"> Likes</span>
+
+                                    <div class="modal fade" id="likeModal{{ key.id }}" tabindex="-1"
                                          role="dialog"
-                                         aria-labelledby="deleteLabel{{ blog.id }}" aria-hidden="true">
+                                         aria-labelledby="likeLabel{{ key.id }}" aria-hidden="true">
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title"
-                                                        id="deleteBlogLabel{{ blog.id }}">Delete
+                                                        id="likeLabel{{ key.id }}"> Likes </h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    {% for like in value %}
+                                                        <strong>{{ like.user.get_full_name }}</strong> liked
+                                                        <hr>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="deleteBlog{{ key.id }}" tabindex="-1"
+                                         role="dialog"
+                                         aria-labelledby="deleteLabel{{ key.id }}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title"
+                                                        id="deleteBlogLabel{{ key.id }}">Delete
                                                         Blog</h5>
                                                     <button type="button" class="close" data-dismiss="modal"
                                                             aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
-                                                <form method="post"
-                                                      action=""
-                                                      id="delete{{ blog.id }}">
+                                                <form method="post" action="{% url 'delete_blog' key.id %}"
+                                                      id="delete{{ key.id }}">
                                                     <div class="modal-body">
                                                         {% csrf_token %}
-                                                        You are about to delete blog {{ blog.title }}? <br>
+                                                        You are about to delete blog {{ key.title }}? <br>
                                                         <br>Are you sure?
                                                     </div>
                                                     <button id="submit_delete" class="btn btn-primary"
-                                                           style="margin-left: 20px; width: 100px ">Yes
+                                                            style="margin-left: 20px; width: 100px ">Yes
                                                     </button>
                                                 </form>
                                             </div>
@@ -203,39 +227,6 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-12 col-sm-5 offset-sm-1 mb-3">
-                                                        <div class="mb-2"><b>Keeping in Touch</b></div>
-                                                        <div class="row">
-                                                            <div class="col">
-                                                                <label>Email Notifications</label>
-                                                                <div class="custom-controls-stacked px-2">
-                                                                    <div class="custom-control custom-checkbox">
-                                                                        <input type="checkbox"
-                                                                               class="custom-control-input"
-                                                                               id="notifications-blog" checked="">
-                                                                        <label class="custom-control-label"
-                                                                               for="notifications-blog">Blog
-                                                                            posts</label>
-                                                                    </div>
-                                                                    <div class="custom-control custom-checkbox">
-                                                                        <input type="checkbox"
-                                                                               class="custom-control-input"
-                                                                               id="notifications-news" checked="">
-                                                                        <label class="custom-control-label"
-                                                                               for="notifications-news">Newsletter</label>
-                                                                    </div>
-                                                                    <div class="custom-control custom-checkbox">
-                                                                        <input type="checkbox"
-                                                                               class="custom-control-input"
-                                                                               id="notifications-offers" checked="">
-                                                                        <label class="custom-control-label"
-                                                                               for="notifications-offers">Personal
-                                                                            Offers</label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col d-flex justify-content-end">
@@ -354,9 +345,9 @@
 
     <script>
         $(document).ready(function () {
-                $("#delete{{ blog.id }}").submit(function (e) {
+                $("#delete{{ key.id }}").submit(function (e) {
                         e.preventDefault();
-                        var url = "/explore/delete_blog/{{ blog.id }}"
+                        var url = "/explore/delete_blog/{{ key.id }}"
 
                         $.ajax({
                                 type: 'POST',
@@ -370,7 +361,7 @@
                             }
                         )
 
-                        $('#deleteBlog{{ blog.id }}').modal('hide');
+                        $('#deleteBlog{{ key.id }}').modal('hide');
                         return false;
                     }
                 )

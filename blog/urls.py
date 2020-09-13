@@ -10,5 +10,7 @@ urlpatterns = [
     path('delete_blog/<int:blog_id>', views.DeleteBlog.as_view(), name='delete_blog'),
     path('like/<int:blog_id>', views.AjaxLike.as_view(), name='ajax_like'),
     path('unlike/<int:blog_id>', views.AjaxUnlike.as_view(), name='ajax_unlike'),
+    path('explore/<filter>', views.FilterExplore.as_view(), name='explore_filtered'),
+    path('search', views.SearchExplore.as_view(), name='explore_search'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
