@@ -1,7 +1,7 @@
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
 from django.shortcuts import render, redirect
-from django.utils.datetime_safe import datetime
+from datetime import datetime
 from django.views import View
 from accounts.models import UserPP, BlogLikes
 from blog.forms import BlogForm
@@ -43,7 +43,7 @@ class AddBlog(View):
         return render(request, 'add_blog.html', {'form': blog_form})
 
     def post(self, request):
-        form = BlogForm(request.POST)
+        form = BlogForm(request.POST, request.FILES)
         if form.is_valid():
             title = request.POST.get('title')
             place = request.POST.get('place')
@@ -52,7 +52,6 @@ class AddBlog(View):
             post_part_2 = request.POST.get('post_part_2')
             subtitle = request.POST.get('subtitle')
             cover_image = request.FILES.get('cover_image')
-
             author = request.user
 
             blog_post = BlogPost.objects.create(author=author,
@@ -72,6 +71,7 @@ class AddBlog(View):
                 photo.save()
 
         else:
+            print("AAAAA")
             print(form.errors)
 
         return redirect('blog_details', blog_post.id)

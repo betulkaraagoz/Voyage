@@ -1,9 +1,11 @@
 import operator
-
+import re
+from nltk.corpus import stopwords
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.utils.datetime_safe import datetime
 from django.views import View
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 from accommodation.models import Hotel, Room, Reservation, Review, AdditionalImages
 from accounts.models import CustomerLikes, UserPP
 from blog.models import BlogPost
@@ -11,6 +13,12 @@ from .forms import ReviewForm, ReservationForm
 from django.db.models import Q
 from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
+import pandas as pd
+from datetime import datetime
+
+REPLACE_BY_SPACE_RE = re.compile('[/(){}\[\]\|@,;]')
+BAD_SYMBOLS_RE = re.compile('[^0-9a-z #+_]')
+STOPWORDS = set(stopwords.words('english'))
 
 
 class Home(View):
@@ -32,7 +40,7 @@ class Home(View):
 
         for i in range(len(sorted_hotel)):
             if i < 6:
-               pop_hotels.append(sorted_hotel[i][0])
+                pop_hotels.append(sorted_hotel[i][0])
 
         return render(request, 'index.html', {'blogs': blogs, 'pop_hotels': pop_hotels})
 
@@ -88,9 +96,39 @@ class HotelHomePage(LoginRequiredMixin, View):
         for review in reviews:
             pps[review] = UserPP.objects.get(user_id=review.customer.id)
 
+        ds = pd.DataFrame(list(Hotel.objects.all().values('description', 'name', 'location', 'number_of_stars')))
+
+        def clean_text(text):
+            text = text.lower()  # lowercase text
+            text = REPLACE_BY_SPACE_RE.sub(' ', text)
+            text = BAD_SYMBOLS_RE.sub('', text)
+            text = ' '.join(word for word in text.split() if word not in STOPWORDS)  # remove stopwors from text
+            return text
+
+        ds['desc_clean'] = ds['description'].apply(clean_text)
+
+        ds.set_index('name', inplace=True)
+        tf = TfidfVectorizer(analyzer='word', ngram_range=(1, 3), min_df=0, stop_words='english')
+        tfidf_matrix = tf.fit_transform(ds['desc_clean'])
+        cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+        indices = pd.Series(ds.index)
+
+        def recommendations(name, cosine_similarities=cosine_similarities):
+            recommended_hotels = []
+            idx = indices[indices == name].index[0]
+            score_series = pd.Series(cosine_similarities[idx]).sort_values(ascending=False)
+            top_10_indexes = list(score_series.iloc[1:6].index)
+            for i in top_10_indexes:
+                recommended_hotels.append(Hotel.objects.get(name=list(ds.index)[i]))
+
+            return recommended_hotels
+
+
         return render(request, 'hotel_homepage.html',
                       {'hotel': hotel, 'reviews': reviews, 'count': reviews_count,
-                       'form': form, 'images': images, 'liked': is_liked, 'dict': pps})
+                       'form': form, 'images': images, 'liked': is_liked, 'dict': pps,
+                       'recommendations': recommendations(hotel.name)})
 
 
 class AddHotels(LoginRequiredMixin, View):
@@ -149,7 +187,6 @@ class HotelViewForCustomer(LoginRequiredMixin, View):
             'is_paginated': is_paginated
         }
 
-
         return render(request, 'customer_hotel_view.html', context)
 
     def post(self, request):
@@ -159,19 +196,24 @@ class HotelViewForCustomer(LoginRequiredMixin, View):
 class ListReservations(LoginRequiredMixin, View):
     def get(self, request):
         review_form = ReviewForm()
-        upcoming_reservations = Reservation.objects.filter(check_out__gte=datetime.now().date(), guest=request.user).order_by('check_in')
-        previous_reservations = Reservation.objects.filter(check_out__lte=datetime.now().date(), guest=request.user).order_by('check_in')
+        upcoming_reservations = Reservation.objects.filter(check_out__gte=datetime.now().date(),
+                                                           guest=request.user).order_by('check_in')
+        previous_reservations = Reservation.objects.filter(check_out__lte=datetime.now().date(),
+                                                           guest=request.user).order_by('check_in')
 
         suggestions = []
 
         for reservation in upcoming_reservations:
-            blogs = BlogPost.objects.filter(Q(title__contains=reservation.room.assoc_hotel.location.lower()) | Q(
+            blogs = BlogPost.objects.filter(Q(title__contains=reservation.room.assoc_hotel.location.lower().split(", ")[0]) | Q(
                 title__icontains=reservation.room.assoc_hotel.name.lower()) | Q(
                 place__icontains=reservation.room.assoc_hotel.name.lower()) | Q(
-                place__icontains=reservation.room.assoc_hotel.location.lower()))
+                place__icontains=reservation.room.assoc_hotel.location.lower().split(", ")[0]) | Q(
+                place__icontains=reservation.room.assoc_hotel.location.lower().split(", ")[1]) | Q(
+                title__contains=reservation.room.assoc_hotel.location.lower().split(", ")[1]))
 
             for blog in blogs:
-                suggestions.append(blog)
+                if blog not in suggestions:
+                    suggestions.append(blog)
 
         return render(request, 'view_reservations.html',
                       {'previous_reservations': previous_reservations, 'upcoming_reservations': upcoming_reservations,
@@ -271,7 +313,3 @@ class DestinationsView(View):
         }
 
         return render(request, 'customer_hotel_view.html', context)
-
-
-
-

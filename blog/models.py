@@ -7,14 +7,14 @@ from accounts.models import BlogLikes
 
 class BlogPost(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200, default=None,)
-    place = models.CharField(max_length=100, default=None,)
-    continent = models.CharField(max_length=100, default=None,)
+    title = models.CharField(max_length=200, default=None)
+    place = models.CharField(max_length=100, default=None)
+    continent = models.CharField(max_length=100, default=None)
     post_part_1 = models.CharField(max_length=5000, default=None, null=True)
     subtitle = models.CharField(max_length=200, default=None, null=True, blank=True)
     post_part_2 = models.CharField(max_length=5000, default=None, null=True)
     date = models.DateField(default=timezone.now())
-    cover_image = models.ImageField(upload_to='images/', null=True)
+    cover_image = models.ImageField(upload_to='images/', default=None, null=True)
     video_url = models.CharField(max_length=1000, null=True, blank=True)
 
     def get_short_post(self):
