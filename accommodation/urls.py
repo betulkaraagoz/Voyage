@@ -15,4 +15,5 @@ urlpatterns = [
     path('<int:hotel_id>/homepage', views.HotelHomePage.as_view(), name='hotel_homepage'),
     path('like/<int:hotel_id>', views.AjaxLike.as_view(), name='ajax_like'),
     path('unlike/<int:hotel_id>', views.AjaxUnlike.as_view(), name='ajax_unlike'),
+    path('destinations/<place>', views.DestinationsView.as_view(), name='destinations_view'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

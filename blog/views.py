@@ -113,7 +113,7 @@ class AjaxUnlike(View):
 
 class FilterExplore(View):
     def get(self, request, filter):
-        blog_objects = BlogPost.objects.filter(place__contains=filter)
+        blog_objects = BlogPost.objects.filter(continent__contains=filter)
 
         blogs = {}
         for blog in blog_objects:
@@ -127,12 +127,12 @@ class FilterExplore(View):
         except InvalidPage as e:
             raise Http404(str(e))
 
-        continents = {"Africa": BlogPost.objects.filter(place__contains="Africa").count(),
-                      "Asia": BlogPost.objects.filter(place__contains="Asia").count(),
-                      "Australia": BlogPost.objects.filter(place__contains="Australia").count(),
-                      "Europe": BlogPost.objects.filter(place__contains="Europe").count(),
-                      "North America": BlogPost.objects.filter(place__contains="North America").count(),
-                      "South America": BlogPost.objects.filter(place__contains="South America").count()}
+        continents = {"Africa": BlogPost.objects.filter(continent__contains="Africa").count(),
+                      "Asia": BlogPost.objects.filter(continent__contains="Asia").count(),
+                      "Australia": BlogPost.objects.filter(continent__contains="Australia").count(),
+                      "Europe": BlogPost.objects.filter(continent__contains="Europe").count(),
+                      "North America": BlogPost.objects.filter(continent__contains="North America").count(),
+                      "South America": BlogPost.objects.filter(continent__contains="South America").count()}
 
         return render(request, 'index3.html', {'blogs': blogs, 'continents': continents, 'current_page': current_page,
                                                'is_paginated': is_paginated})
@@ -140,7 +140,7 @@ class FilterExplore(View):
 
 class SearchExplore(View):
     def post(self, request):
-        blog_objects = BlogPost.objects.filter(Q(title__icontains=request.POST.get('search')) | Q(place__icontains=request.POST.get('search'))| Q(author__first_name__icontains=request.POST.get('search')))
+        blog_objects = BlogPost.objects.filter(Q(title__icontains=request.POST.get('search')) | Q(continent__icontains=request.POST.get('search'))| Q(place__icontains=request.POST.get('search'))| Q(author__first_name__icontains=request.POST.get('search')))
 
         blogs = {}
         for blog in blog_objects:
@@ -154,12 +154,12 @@ class SearchExplore(View):
         except InvalidPage as e:
             raise Http404(str(e))
 
-        continents = {"Africa": BlogPost.objects.filter(place__contains="Africa").count(),
-                      "Asia": BlogPost.objects.filter(place__contains="Asia").count(),
-                      "Australia": BlogPost.objects.filter(place__contains="Australia").count(),
-                      "Europe": BlogPost.objects.filter(place__contains="Europe").count(),
-                      "North America": BlogPost.objects.filter(place__contains="North America").count(),
-                      "South America": BlogPost.objects.filter(place__contains="South America").count()}
+        continents = {"Africa": BlogPost.objects.filter(continent__contains="Africa").count(),
+                      "Asia": BlogPost.objects.filter(continent__contains="Asia").count(),
+                      "Australia": BlogPost.objects.filter(continent__contains="Australia").count(),
+                      "Europe": BlogPost.objects.filter(continent__contains="Europe").count(),
+                      "North America": BlogPost.objects.filter(continent__contains="North America").count(),
+                      "South America": BlogPost.objects.filter(continent__contains="South America").count()}
 
         return render(request, 'index3.html', {'blogs': blogs, 'continents': continents, 'current_page': current_page,
                                                'is_paginated': is_paginated})

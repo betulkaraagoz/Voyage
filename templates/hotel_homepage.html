@@ -20,6 +20,13 @@
             height: 30px;
         }
 
+        .btn.btn-pri {
+            background: #FB84B8;
+            border: 1px solid #FB84B8;
+            color: #fff;
+            border-radius: 30px;
+        }
+
         .tablink:hover {
             background-color: #777;
         }
@@ -41,14 +48,14 @@
         <div class="col-1"></div>
         <div class="col-2">
             {% if hotel.icon %}
-                <img src="{{ hotel.icon.url|safe }}" class="img-fluid"/>
+                <img src="{{ hotel.icon.url }}" class="img-fluid"/>
             {% endif %}
         </div>
         <div class="col-7">
-            <h1>{{ hotel.name|safe }}</h1>
-            <a target="_blank" href="{{ hotel.location_url|safe }}">
+            <h1>{{ hotel.name }}</h1>       <h4><a class="btn btn-pri">{{ hotel.type }}</a></h4>
+            <a target="_blank" href="{{ hotel.location_url }}">
                 <img src="{% static 'pin.png' %}" style="height: 20px" class="img-fluid">
-                {{ hotel.location|safe }}
+                {{ hotel.location }}
             </a>
             <br>
             <br>
@@ -187,7 +194,7 @@
 
     <div id="Map" class="tabcontent" style="width: 90%">
         <br>
-        <iframe src="{{ hotel.maps_url|safe|safe }}"
+        <iframe src="{{ hotel.maps_url }}"
                 width="100%" height="500" frameborder="0" style="border:0; margin-left: 70px" allowfullscreen=""
                 aria-hidden="false"
                 tabindex="0"></iframe>

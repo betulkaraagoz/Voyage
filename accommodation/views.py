@@ -1,3 +1,5 @@
+import operator
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.utils.datetime_safe import datetime
@@ -6,7 +8,6 @@ from accommodation.models import Hotel, Room, Reservation, Review, AdditionalIma
 from accounts.models import CustomerLikes, UserPP
 from blog.models import BlogPost
 from .forms import ReviewForm, ReservationForm
-from django.forms import modelformset_factory
 from django.db.models import Q
 from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
@@ -14,14 +15,47 @@ from django.http import Http404
 
 class Home(View):
     def get(self, request):
-        return render(request, 'index.html')
+        unsorted_blogs = BlogPost.objects.all()
+
+        blog_all = sorted(unsorted_blogs, key=lambda t: t.get_likes_no(), reverse=True)
+        blogs = []
+        for i in range(len(blog_all)):
+            if i < 3:
+                blogs.append(blog_all[i])
+
+        popularity = {}
+        pop_hotels = []
+        for hotel in Hotel.objects.all():
+            popularity[hotel] = hotel.get_popularity()
+
+        sorted_hotel = sorted(popularity.items(), key=operator.itemgetter(1), reverse=True)
+
+        for i in range(len(sorted_hotel)):
+            if i < 6:
+               pop_hotels.append(sorted_hotel[i][0])
+
+        return render(request, 'index.html', {'blogs': blogs, 'pop_hotels': pop_hotels})
 
     def post(self, request):
         search_term = request.POST.get('search')
-        rooms = Room.objects.all()
-        search_results = Hotel.objects.filter(Q(location__icontains=search_term) | Q(name__icontains=search_term))
-        hotels = sorted(search_results, key=lambda t: t.get_avg_rating(), reverse=True)
-        return render(request, 'customer_hotel_view.html', {'hotels': hotels, 'rooms': rooms})
+
+        unsorted_hotels = Hotel.objects.filter(Q(location__icontains=search_term) | Q(name__icontains=search_term))
+        hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
+
+        paginator = Paginator(hotels, 15, orphans=5)
+        is_paginated = True if paginator.num_pages > 1 else False
+        page = request.GET.get('page') or 1
+        try:
+            current_page = paginator.page(page)
+        except InvalidPage as e:
+            raise Http404(str(e))
+
+        context = {
+            'current_page': current_page,
+            'is_paginated': is_paginated
+        }
+
+        return render(request, 'customer_hotel_view.html', context)
 
 
 class Hotels(LoginRequiredMixin, View):
@@ -75,12 +109,6 @@ class AddHotels(LoginRequiredMixin, View):
             new_hotel.owner = request.user
             new_hotel.save()
 
-            # hotels = Hotel.objects.all()
-            # for hotel in hotels:
-            #     if hotel.geo_latitude is not None:
-            #         hotel.icon = request.FILES['icon']
-            #         hotel.image = request.FILES['image']
-
             for i in range(int(new_hotel.number_of_rooms)):
                 new_room = Room(
                     name='room' + str(i),
@@ -105,9 +133,10 @@ class AddHotels(LoginRequiredMixin, View):
 
 class HotelViewForCustomer(LoginRequiredMixin, View):
     def get(self, request):
-        hotels = Hotel.objects.all()
+        unsorted_hotels = Hotel.objects.all().order_by('image').reverse()
+        hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
 
-        paginator = Paginator(hotels, 20, orphans=5)
+        paginator = Paginator(hotels, 15, orphans=5)
         is_paginated = True if paginator.num_pages > 1 else False
         page = request.GET.get('page') or 1
         try:
@@ -119,7 +148,7 @@ class HotelViewForCustomer(LoginRequiredMixin, View):
             'current_page': current_page,
             'is_paginated': is_paginated
         }
-        # hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
+
 
         return render(request, 'customer_hotel_view.html', context)
 
@@ -130,8 +159,8 @@ class HotelViewForCustomer(LoginRequiredMixin, View):
 class ListReservations(LoginRequiredMixin, View):
     def get(self, request):
         review_form = ReviewForm()
-        upcoming_reservations = Reservation.objects.filter(check_out__gte=datetime.now().date()).order_by('check_in')
-        previous_reservations = Reservation.objects.filter(check_out__lte=datetime.now().date()).order_by('check_in')
+        upcoming_reservations = Reservation.objects.filter(check_out__gte=datetime.now().date(), guest=request.user).order_by('check_in')
+        previous_reservations = Reservation.objects.filter(check_out__lte=datetime.now().date(), guest=request.user).order_by('check_in')
 
         suggestions = []
 
@@ -221,3 +250,28 @@ class AjaxUnlike(View):
         like = CustomerLikes.objects.filter(user=request.user, liked_hotel=hotel)
         like.delete()
         return redirect('reservations')
+
+
+class DestinationsView(View):
+    def get(self, request, place):
+        unsorted_hotels = Hotel.objects.filter(location__icontains=place).order_by('image').reverse()
+        hotels = sorted(unsorted_hotels, key=lambda t: t.get_avg_rating(), reverse=True)
+
+        paginator = Paginator(hotels, 15, orphans=5)
+        is_paginated = True if paginator.num_pages > 1 else False
+        page = request.GET.get('page') or 1
+        try:
+            current_page = paginator.page(page)
+        except InvalidPage as e:
+            raise Http404(str(e))
+
+        context = {
+            'current_page': current_page,
+            'is_paginated': is_paginated
+        }
+
+        return render(request, 'customer_hotel_view.html', context)
+
+
+
+

@@ -4,6 +4,8 @@ from django.db import models
 from django.db.models import Avg
 from django.utils import timezone
 
+from accounts.models import CustomerLikes
+
 
 def next_day():
     return timezone.now() + timezone.timedelta(days=1)
@@ -24,16 +26,15 @@ class Hotel(models.Model):
     email = models.EmailField(max_length=200, default=None, null=True, blank=True)
     hotel_website = models.CharField(max_length=1000, default=None, null=True, blank=True)
     number_of_stars = models.IntegerField(default=5)
-    geo_latitude = models.CharField(max_length=100, default=None, null=True, blank=True)
-    geo_longitude = models.CharField(max_length=100, default=None, null=True, blank=True)
+    standard_price = models.IntegerField(default=1000, blank=True, null=True)
 
     def get_reviews_count(self):
         return Review.objects.filter(hotel_id=self.id).count()
 
     def get_avg_rating(self):
         reviews = Review.objects.filter(hotel_id=self.id)
-        print(reviews)
-        if reviews is None:
+
+        if reviews.count() == 0:
             return 0
 
         reviews_average = list(reviews.aggregate(Avg('rating')).values())[0]
@@ -57,6 +58,15 @@ class Hotel(models.Model):
 
         percentages = [per_1, per_2, per_3, per_4, per_5]
         return percentages
+
+    def get_popularity(self):
+        pop_reservations = Reservation.objects.filter(room__assoc_hotel=self).count()
+        pop_likes = CustomerLikes.objects.filter(liked_hotel=self).count()
+
+        return pop_likes + pop_reservations
+
+    def get_reviews_count(self):
+        return Review.objects.filter(hotel=self).count()
 
 
 class AdditionalImages(models.Model):

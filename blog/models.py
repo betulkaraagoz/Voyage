@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
+from accounts.models import BlogLikes
+
 
 class BlogPost(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -17,6 +19,10 @@ class BlogPost(models.Model):
 
     def get_short_post(self):
         return self.post_part_1[:500]
+
+    def get_likes_no(self):
+        likes_number = BlogLikes.objects.filter(liked_blog=self).count()
+        return likes_number
 
 
 class BlogPostImages(models.Model):
