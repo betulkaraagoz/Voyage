@@ -101,7 +101,7 @@ class Profile(LoginRequiredMixin, View):
         return redirect('profile')
 
 
-class Wishlist(View):
+class Wishlist(LoginRequiredMixin, View):
     def get(self, request):
         liked_hotels = CustomerLikes.objects.filter(user=request.user)
         liked_blogs = BlogLikes.objects.filter(user=request.user)

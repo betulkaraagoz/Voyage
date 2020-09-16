@@ -17,7 +17,7 @@
         <div class="row">
             <div class="col-1"></div>
             <div class="col-3" style="background-color: lavenderblush">
-                <h5>{{ reservation.room.assoc_hotel.name }}</h5><br>
+                <a href="{% url 'hotel_homepage' reservation.room.assoc_hotel.id %}"><h5>{{ reservation.room.assoc_hotel.name }}</h5></a><br>
             </div>
             <div class="col-1" style="background-color: lavenderblush">
                 {{ reservation.room }}<br>
@@ -105,7 +105,7 @@
         <div class="row">
             <div class="col-1"></div>
             <div class="col-3" style="background-color: lightyellow">
-                <h5>{{ reservation.room.assoc_hotel.name }}</h5><br>
+                <a href="{% url 'hotel_homepage' reservation.room.assoc_hotel.id %}"><h5>{{ reservation.room.assoc_hotel.name }}</h5></a><br>
             </div>
             <div class="col-1" style="background-color: lightyellow">
                 {{ reservation.room }}<br>

@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
 from django.shortcuts import render, redirect
@@ -9,7 +10,7 @@ from blog.models import BlogPost, BlogPostImages
 from django.db.models import Q
 
 
-class ExploreHome(View):
+class ExploreHome(LoginRequiredMixin, View):
     def get(self, request):
         blog_objects = BlogPost.objects.all()
 
@@ -37,7 +38,7 @@ class ExploreHome(View):
                                                'is_paginated': is_paginated})
 
 
-class AddBlog(View):
+class AddBlog(LoginRequiredMixin, View):
     def get(self, request):
         blog_form = BlogForm()
         return render(request, 'add_blog.html', {'form': blog_form})
@@ -77,7 +78,7 @@ class AddBlog(View):
         return redirect('blog_details', blog_post.id)
 
 
-class BlogDetails(View):
+class BlogDetails(LoginRequiredMixin, View):
     def get(self, request, blog_id):
         blog = BlogPost.objects.get(id=blog_id)
         blog_photos = BlogPostImages.objects.filter(blog_id=blog_id)
@@ -88,7 +89,7 @@ class BlogDetails(View):
                       {'blog': blog, 'photos': blog_photos, 'liked': is_liked, 'count': like_count})
 
 
-class DeleteBlog(View):
+class DeleteBlog(LoginRequiredMixin, View):
     def post(self, request, blog_id):
         blog = BlogPost.objects.get(id=blog_id)
         blog.delete()

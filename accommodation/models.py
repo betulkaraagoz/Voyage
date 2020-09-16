@@ -28,6 +28,9 @@ class Hotel(models.Model):
     number_of_stars = models.IntegerField(default=5)
     standard_price = models.IntegerField(default=1000, blank=True, null=True)
 
+    def get_short_desc(self):
+        return self.description[:150]
+
     def get_reviews_count(self):
         return Review.objects.filter(hotel_id=self.id).count()
 

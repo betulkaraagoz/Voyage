@@ -84,6 +84,23 @@ class Hotels(LoginRequiredMixin, View):
 
 
 class HotelHomePage(LoginRequiredMixin, View):
+    def clean_text(self, text):
+        text = text.lower()
+        text = REPLACE_BY_SPACE_RE.sub(' ', text)
+        text = BAD_SYMBOLS_RE.sub('', text)
+        text = ' '.join(word for word in text.split() if word not in STOPWORDS)  # remove stopwors from text
+        return text
+
+    def recommendations(self, name, cosine_similarities, indices, ds):
+        recommended_hotels = []
+        idx = indices[indices == name].index[0]
+        score_series = pd.Series(cosine_similarities[idx]).sort_values(ascending=False)
+        top_5_indexes = list(score_series.iloc[1:6].index)
+        for i in top_5_indexes:
+            recommended_hotels.append(Hotel.objects.get(name=list(ds.index)[i]))
+
+        return recommended_hotels
+
     def get(self, request, hotel_id):
         form = ReservationForm()
         reviews = Review.objects.select_related('customer', 'hotel').filter(hotel_id=hotel_id)
@@ -98,37 +115,21 @@ class HotelHomePage(LoginRequiredMixin, View):
 
         ds = pd.DataFrame(list(Hotel.objects.all().values('description', 'name', 'location', 'number_of_stars')))
 
-        def clean_text(text):
-            text = text.lower()  # lowercase text
-            text = REPLACE_BY_SPACE_RE.sub(' ', text)
-            text = BAD_SYMBOLS_RE.sub('', text)
-            text = ' '.join(word for word in text.split() if word not in STOPWORDS)  # remove stopwors from text
-            return text
+        ds['desc_clean'] = ds['description'].apply(self.clean_text) #convert text to clean text, remove spaces stopwords etc
 
-        ds['desc_clean'] = ds['description'].apply(clean_text)
-
-        ds.set_index('name', inplace=True)
+        ds.set_index('name', inplace=True) #set_index() function is used to set the DataFrame index using existing columns
         tf = TfidfVectorizer(analyzer='word', ngram_range=(1, 3), min_df=0, stop_words='english')
+        #TfidfVectorizer - Transforms text to feature vectors that can be used as input to estimator.
         tfidf_matrix = tf.fit_transform(ds['desc_clean'])
         cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
+        #The Linear kernel is the simplest kernel function. It is given by the inner product <x,y> plus an optional constant c.
 
         indices = pd.Series(ds.index)
-
-        def recommendations(name, cosine_similarities=cosine_similarities):
-            recommended_hotels = []
-            idx = indices[indices == name].index[0]
-            score_series = pd.Series(cosine_similarities[idx]).sort_values(ascending=False)
-            top_10_indexes = list(score_series.iloc[1:6].index)
-            for i in top_10_indexes:
-                recommended_hotels.append(Hotel.objects.get(name=list(ds.index)[i]))
-
-            return recommended_hotels
-
 
         return render(request, 'hotel_homepage.html',
                       {'hotel': hotel, 'reviews': reviews, 'count': reviews_count,
                        'form': form, 'images': images, 'liked': is_liked, 'dict': pps,
-                       'recommendations': recommendations(hotel.name)})
+                       'recommendations': self.recommendations(hotel.name, cosine_similarities, indices, ds)})
 
 
 class AddHotels(LoginRequiredMixin, View):

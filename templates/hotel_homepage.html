@@ -213,12 +213,12 @@
                 <div class="carousel-inner" role="listbox">
                     <div class="item active">
                         {% if hotel.image %}
-                            <img src="{{ hotel.image.url|safe|safe }}" class="img-fluid"/>
+                            <img src="{{ hotel.image.url }}" class="img-fluid"/>
                         {% endif %}
                     </div>
                     {% for image in images %}
                         <div class="item">
-                            <img src="{{ image.image.url|safe|safe }}">
+                            <img src="{{ image.image.url }}">
                         </div>
                     {% endfor %}
                 </div>
@@ -248,7 +248,7 @@
     <div class="row">
         <div class="col-1"></div>
         <div class="col-10">
-            <p>{{ hotel.description|safe|safe }}</p>
+            <p>{{ hotel.description }}</p>
         </div>
     </div>
 
@@ -265,22 +265,9 @@
                         <h4>Average user rating</h4>
                         <span class="d-inline-block rounded-circle"
                               style="height: 75px; width: 120px; background-color: #E9486C">
-                            <h2 class="bold" style="position: relative; left: 5px;">{{ hotel.get_avg_rating|safe|safe }} <small
+                            <h2 class="bold" style="position: relative; left: 10px;">{{ hotel.get_avg_rating }} <small
                                     style="color: black">/ 10</small></h2>
                         </span>
-
-                        {#                                {% for i in "x"|ljust:10 %}#}
-                        {#                                    {% if forloop.counter0 < hotel.get_avg_rating %}#}
-                        {#                                    <button type="button" class="btn btn-warning btn-sm" style="width: 10px" aria-label="Left Align">#}
-                        {#                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>#}
-                        {#                                    </button>#}
-                        {#                                    {% else %}#}
-                        {#                                    <button type="button" class="btn btn-default btn-sm"  style="width: 10px" aria-label="Left Align">#}
-                        {#                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>#}
-                        {#                                    </button>#}
-                        {#                                    {% endif %}#}
-                        {#                                {% endfor %}#}
-
                     </div>
                 </div>
                 <div class="col-sm-3">
@@ -303,7 +290,7 @@
                             </div>
                         </div>
                         <div class="pull-right"
-                             style="margin-left:10px;">{{ hotel.get_ratings.4|safe }}</div>
+                             style="margin-left:10px;">{{ hotel.get_ratings.4 }}</div>
                     </div>
                     <div class="pull-left">
                         <div class="pull-left" style="width:35px; line-height:1;">
@@ -416,7 +403,9 @@
                 <div class="flip-box">
                     <div class="flip-box-inner">
                         <div class="flip-box-front">
-                            <img src="{{ rec.image.url }}" class="img-fluid" style="width:240px;height:200px">
+                            {% if rec.image %}
+                                <img src="{{ rec.image.url }}" class="img-fluid" style="width:240px;height:200px">
+                            {% endif %}
                         </div>
                         <div class="flip-box-back">
                             <h2>{{ rec.name }}</h2>
@@ -480,13 +469,13 @@
                 $(this).toggleClass("is-active");
 
                 e.preventDefault();
-                var url = "/accomodation/like/{{ hotel.id|safe }}"
+                var url = "/accomodation/like/{{ hotel.id }}"
 
                 $.ajax({
                         type: 'POST',
                         url: url,
                         data: {
-                            csrfmiddlewaretoken: '{{ csrf_token|safe }}'
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
                         },
 
                         success: function (response) {
@@ -506,13 +495,13 @@
                 $(this).toggleClass("not-active");
 
                 e.preventDefault();
-                var url = "/accomodation/unlike/{{ hotel.id|safe }}"
+                var url = "/accomodation/unlike/{{ hotel.id }}"
 
                 $.ajax({
                         type: 'POST',
                         url: url,
                         data: {
-                            csrfmiddlewaretoken: '{{ csrf_token|safe }}'
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
                         },
 
                         success: function (response) {
@@ -529,7 +518,7 @@
         $(document).ready(function () {
                 $("#reservation_form").submit(function (e) {
                         e.preventDefault();
-                        var url = "/accomodation/add_reservation/{{ hotel.id|safe }}"
+                        var url = "/accomodation/add_reservation/{{ hotel.id }}"
 
                         $.ajax({
                                 type: 'POST',
@@ -542,7 +531,7 @@
                                 }
                             }
                         )
-                        $('#reservationModal{{ reservation.id|safe }}').modal('hide');
+                        $('#reservationModal{{ reservation.id }}').modal('hide');
                         return false;
                     }
                 )
